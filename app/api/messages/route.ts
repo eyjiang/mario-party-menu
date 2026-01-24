@@ -74,16 +74,14 @@ export async function POST(request: NextRequest) {
     const msgId = uuidv4();
     const timestamp = Date.now();
 
-    const secretMessage: SecretMessage = {
+    await redis.hset(messageKey(msgId), {
       id: msgId,
       fromUserId: userId,
       fromUserName: decodeURIComponent(fromUserName),
       toUserName,
       message: message.slice(0, 500),
-      timestamp,
-    };
-
-    await redis.hset(messageKey(msgId), secretMessage as Record<string, string | number>);
+      timestamp: String(timestamp),
+    });
     await redis.lpush(MESSAGES_LIST, msgId);
 
     // Keep only last 500 messages

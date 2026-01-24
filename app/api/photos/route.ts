@@ -61,21 +61,21 @@ export async function POST(request: NextRequest) {
     const photoId = uuidv4();
     const timestamp = Date.now();
 
-    const photo: Photo = {
+    const decodedUserName = decodeURIComponent(userName);
+
+    await redis.hset(photoKey(photoId), {
       id: photoId,
       userId,
-      userName: decodeURIComponent(userName),
+      userName: decodedUserName,
       dataUrl,
-      timestamp,
-    };
-
-    await redis.hset(photoKey(photoId), photo as Record<string, string | number>);
+      timestamp: String(timestamp),
+    });
     await redis.lpush(PHOTOS_LIST, photoId);
 
     // Keep only last 50 photos
     await redis.ltrim(PHOTOS_LIST, 0, 49);
 
-    return NextResponse.json({ photo: { id: photoId, userName: photo.userName, timestamp } }, { status: 201 });
+    return NextResponse.json({ photo: { id: photoId, userName: decodedUserName, timestamp } }, { status: 201 });
   } catch (error) {
     console.error("Error uploading photo:", error);
     return NextResponse.json({ error: "Failed to upload photo" }, { status: 500 });
