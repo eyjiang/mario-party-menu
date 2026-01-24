@@ -79,8 +79,8 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
   };
 
   return (
-    <div className="bg-gradient-to-b from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-2xl p-5 border-2 border-yellow-500/50 shadow-lg shadow-yellow-500/20">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-gradient-to-b from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-yellow-500/50 shadow-lg shadow-yellow-500/20">
+      <div className="flex items-center justify-between mb-5">
         <h2 className="text-2xl font-bold font-[family-name:var(--font-press-start)] text-yellow-400 text-sm">
           📋 QUEUE
         </h2>
@@ -100,7 +100,7 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
       </div>
 
       {showStaffInput && (
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-5">
           <input
             type="password"
             value={staffKey}
@@ -125,45 +125,53 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
       )}
 
       {orders.length === 0 ? (
-        <div className="text-center py-8">
-          <div className="text-4xl mb-3 animate-bounce">🍹</div>
+        <div className="text-center py-10">
+          <div className="text-5xl mb-4 animate-bounce">🍹</div>
           <p className="text-gray-400 text-sm">No orders yet!</p>
-          <p className="text-gray-500 text-xs">Be the first to order</p>
+          <p className="text-gray-500 text-xs mt-1">Be the first to order</p>
         </div>
       ) : (
-        <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
           {orders.map((order, index) => (
             <div
               key={order.id}
               className={`
                 relative overflow-hidden
                 bg-gradient-to-r from-gray-700/50 to-gray-800/50
-                rounded-xl p-3
+                rounded-xl p-4
                 border border-gray-600/50
                 ${order.userId === userId ? "ring-2 ring-yellow-500/50" : ""}
                 transform transition-all hover:scale-[1.02]
               `}
             >
               <div className="flex items-start gap-3">
-                <div className="text-2xl font-bold text-yellow-500 font-[family-name:var(--font-press-start)] text-xs bg-yellow-500/20 w-8 h-8 rounded-lg flex items-center justify-center">
+                <div className="text-2xl font-bold text-yellow-500 font-[family-name:var(--font-press-start)] text-xs bg-yellow-500/20 w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
                   {index + 1}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-white truncate">
+                  <div className="font-bold text-white">
                     {order.drinkName}
+                    {order.isNonAlcoholic && (
+                      <span className="ml-2 text-xs bg-blue-500/50 px-2 py-0.5 rounded-full">NA</span>
+                    )}
                   </div>
-                  <div className="text-sm text-gray-400 truncate">
+                  <div className="text-sm text-gray-400">
                     for <span className="text-blue-400">{order.userName}</span>
                   </div>
+                  {order.comment && (
+                    <div className="mt-2 text-xs text-gray-300 bg-black/30 rounded-lg p-2 italic">
+                      &ldquo;{order.comment}&rdquo;
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="flex gap-2 mt-2">
+              <div className="flex gap-2 mt-3">
                 {order.userId === userId && (
                   <button
                     onClick={() => cancelOrder(order.id)}
                     disabled={canceling === order.id}
-                    className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 text-xs px-2 py-1.5 rounded-lg transition-all disabled:opacity-50 border border-red-500/30"
+                    className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 text-xs px-3 py-2 rounded-lg transition-all disabled:opacity-50 border border-red-500/30"
                   >
                     {canceling === order.id ? "..." : "❌ Cancel"}
                   </button>
@@ -172,7 +180,7 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
                   <button
                     onClick={() => completeOrder(order.id)}
                     disabled={completing === order.id}
-                    className="flex-1 bg-green-600 hover:bg-green-500 text-xs px-2 py-1.5 rounded-lg transition-colors disabled:opacity-50 font-bold"
+                    className="flex-1 bg-green-600 hover:bg-green-500 text-xs px-3 py-2 rounded-lg transition-colors disabled:opacity-50 font-bold"
                   >
                     {completing === order.id ? "..." : "✓ DONE"}
                   </button>
@@ -183,8 +191,8 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
         </div>
       )}
 
-      <div className="mt-4 pt-3 border-t border-gray-700/50 text-center">
-        <p className="text-xs text-gray-500">
+      <div className="mt-5 pt-4 border-t border-gray-700/50 text-center">
+        <p className="text-sm text-gray-500">
           {orders.length} order{orders.length !== 1 ? "s" : ""} in queue
         </p>
       </div>

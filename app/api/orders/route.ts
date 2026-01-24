@@ -26,6 +26,7 @@ export async function GET() {
           userName: order.userName as string,
           userId: order.userId as string,
           isNonAlcoholic: order.isNonAlcoholic === "true",
+          comment: (order.comment as string) || "",
           timestamp: Number(order.timestamp),
         });
       }
@@ -45,7 +46,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { drinkId, isNonAlcoholic, userName } = body;
+    const { drinkId, isNonAlcoholic, userName, comment } = body;
 
     // Get user ID from cookie
     const userId = request.cookies.get("userId")?.value;
@@ -89,6 +90,7 @@ export async function POST(request: NextRequest) {
       userName: userName || "Anonymous",
       userId,
       isNonAlcoholic: isNonAlcoholic || false,
+      comment: (comment || "").slice(0, 800), // Limit comment length
       timestamp,
     };
 

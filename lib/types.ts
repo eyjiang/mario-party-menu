@@ -5,6 +5,7 @@ export interface Order {
   userName: string;
   userId: string;
   isNonAlcoholic: boolean;
+  comment: string;
   timestamp: number;
 }
 
