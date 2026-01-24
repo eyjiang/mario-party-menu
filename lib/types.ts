@@ -28,6 +28,7 @@ export interface SecretMessage {
   id: string;
   fromUserId: string;
   fromUserName: string;
+  toUserId: string;
   toUserName: string;
   message: string;
   timestamp: number;

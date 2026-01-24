@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import { redis, MESSAGES_LIST, messageKey } from "@/lib/redis";
 import { SecretMessage } from "@/lib/types";
 
+const NAME_TO_USER = "names:to_user";
+
 // GET /api/messages - Get messages for current user
 export async function GET(request: NextRequest) {
   try {
@@ -11,13 +13,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ messages: [] });
     }
 
-    const userName = request.cookies.get("userName")?.value;
-    if (!userName) {
-      return NextResponse.json({ messages: [] });
-    }
-
-    const decodedName = decodeURIComponent(userName);
-
     // Get all message IDs
     const messageIds = await redis.lrange(MESSAGES_LIST, 0, 100);
 
@@ -25,15 +20,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ messages: [] });
     }
 
-    // Fetch messages for this user
+    // Fetch messages for this user (matched by userId, not userName)
     const messages: SecretMessage[] = [];
     for (const id of messageIds) {
       const msg = await redis.hgetall(messageKey(id as string));
-      if (msg && msg.toUserName === decodedName) {
+      if (msg && msg.toUserId === userId) {
         messages.push({
           id: msg.id as string,
           fromUserId: msg.fromUserId as string,
           fromUserName: msg.fromUserName as string,
+          toUserId: msg.toUserId as string,
           toUserName: msg.toUserName as string,
           message: msg.message as string,
           timestamp: Number(msg.timestamp),
@@ -71,6 +67,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing recipient or message" }, { status: 400 });
     }
 
+    // Look up the recipient's userId by their name
+    const toUserId = await redis.hget(NAME_TO_USER, toUserName.toLowerCase());
+    if (!toUserId) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const msgId = uuidv4();
     const timestamp = Date.now();
 
@@ -78,6 +80,7 @@ export async function POST(request: NextRequest) {
       id: msgId,
       fromUserId: userId,
       fromUserName: decodeURIComponent(fromUserName),
+      toUserId: toUserId as string,
       toUserName,
       message: message.slice(0, 500),
       timestamp: String(timestamp),
