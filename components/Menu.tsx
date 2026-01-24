@@ -142,57 +142,41 @@ const DrinkPixelArt = ({ drink, size = 64 }: { drink: Drink; size?: number }) =>
   );
 };
 
-// 8-bit revolver in center
-const PixelRevolver = ({ rotation }: { rotation: number }) => {
+// Simple L-shaped revolver pointing RIGHT (barrel points at drinks when rotated)
+const PixelRevolver = () => {
   return (
-    <div
-      style={{
-        transform: `rotate(${rotation}deg)`,
-        width: 100,
-        height: 100,
-      }}
-    >
-      <svg viewBox="0 0 24 24" className="w-full h-full" style={{ imageRendering: "pixelated" }}>
-        {/* Barrel pointing up */}
-        <rect x="11" y="0" width="2" height="7" fill="#4b5563" />
-        <rect x="10" y="1" width="1" height="5" fill="#6b7280" />
-        <rect x="13" y="1" width="1" height="5" fill="#374151" />
+    <div style={{ width: 80, height: 80 }}>
+      <svg viewBox="0 0 20 20" className="w-full h-full" style={{ imageRendering: "pixelated" }}>
+        {/* Barrel - pointing RIGHT */}
+        <rect x="8" y="6" width="12" height="3" fill="#374151" />
+        <rect x="8" y="7" width="12" height="1" fill="#4b5563" />
+        <rect x="18" y="6" width="2" height="3" fill="#1f2937" />
         {/* Front sight */}
-        <rect x="11" y="0" width="2" height="1" fill="#9ca3af" />
+        <rect x="19" y="5" width="1" height="1" fill="#6b7280" />
 
-        {/* Cylinder (the round part) */}
-        <rect x="9" y="7" width="6" height="5" fill="#4b5563" />
-        <rect x="8" y="8" width="1" height="3" fill="#6b7280" />
-        <rect x="15" y="8" width="1" height="3" fill="#374151" />
-        <rect x="10" y="8" width="4" height="3" fill="#6b7280" />
-        {/* Cylinder holes */}
-        <rect x="10" y="9" width="1" height="1" fill="#1f2937" />
-        <rect x="13" y="9" width="1" height="1" fill="#1f2937" />
-        <rect x="11" y="8" width="2" height="1" fill="#1f2937" />
-        <rect x="11" y="10" width="2" height="1" fill="#1f2937" />
+        {/* Body/Frame */}
+        <rect x="5" y="6" width="5" height="5" fill="#4b5563" />
+        <rect x="6" y="7" width="3" height="3" fill="#6b7280" />
 
-        {/* Frame */}
-        <rect x="9" y="12" width="6" height="3" fill="#374151" />
-        <rect x="10" y="13" width="4" height="1" fill="#4b5563" />
+        {/* Cylinder */}
+        <rect x="7" y="5" width="3" height="1" fill="#374151" />
+        <rect x="7" y="11" width="3" height="1" fill="#374151" />
+
+        {/* Grip - pointing DOWN */}
+        <rect x="5" y="11" width="4" height="7" fill="#78350f" />
+        <rect x="6" y="12" width="2" height="5" fill="#92400e" />
+        <rect x="5" y="17" width="4" height="2" fill="#5c2d0e" />
 
         {/* Trigger guard */}
-        <rect x="8" y="13" width="1" height="3" fill="#374151" />
-        <rect x="8" y="16" width="3" height="1" fill="#374151" />
-        {/* Trigger */}
-        <rect x="9" y="14" width="1" height="2" fill="#1f2937" />
+        <rect x="9" y="11" width="1" height="4" fill="#374151" />
+        <rect x="9" y="14" width="2" height="1" fill="#374151" />
 
-        {/* Grip/Handle */}
-        <rect x="10" y="15" width="4" height="6" fill="#78350f" />
-        <rect x="11" y="16" width="2" height="4" fill="#92400e" />
-        <rect x="9" y="17" width="1" height="3" fill="#78350f" />
-        <rect x="14" y="17" width="1" height="3" fill="#5c2d0e" />
-        {/* Grip texture */}
-        <rect x="11" y="17" width="1" height="1" fill="#a16207" />
-        <rect x="12" y="19" width="1" height="1" fill="#a16207" />
+        {/* Trigger */}
+        <rect x="10" y="12" width="1" height="2" fill="#1f2937" />
 
         {/* Hammer */}
-        <rect x="13" y="6" width="2" height="2" fill="#374151" />
-        <rect x="14" y="5" width="1" height="1" fill="#4b5563" />
+        <rect x="4" y="6" width="2" height="2" fill="#4b5563" />
+        <rect x="3" y="7" width="1" height="1" fill="#374151" />
       </svg>
     </div>
   );
@@ -323,7 +307,10 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
 
     setIsSpinning(true);
     const targetIndex = Math.floor(Math.random() * drinks.length);
-    const targetAngle = targetIndex * 45; // 360/8 = 45 degrees per drink
+    // Gun barrel points RIGHT by default (0 deg). Drinks start at TOP (-90 deg).
+    // So to point at drink 0 (top), gun needs to rotate -90 deg.
+    // Drink positions: 0=top(-90), 1=(-45), 2=right(0), 3=(45), 4=bottom(90), etc.
+    const targetAngle = (targetIndex * 45) - 90;
     const spins = 3 + Math.random() * 2; // 3-5 full rotations
     const startRotation = gunRotation;
     const finalRotation = startRotation + spins * 360 + targetAngle;
@@ -457,7 +444,9 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
         {/* Drinks around the table */}
         {drinks.map((drink, index) => {
           const pos = drinkPositions[index];
-          const isHighlighted = !isSpinning && Math.round(gunRotation / 45) % 8 === index;
+          // Gun at rotation R points at drink index = ((R + 90) / 45) % 8
+          const pointingAtIndex = Math.round(((gunRotation + 90) % 360) / 45) % 8;
+          const isHighlighted = !isSpinning && pointingAtIndex === index;
 
           return (
             <button
@@ -501,7 +490,7 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
             ref={gunRef}
             style={{ transform: `rotate(${gunRotation}deg)` }}
           >
-            <PixelRevolver rotation={0} />
+            <PixelRevolver />
           </div>
         </button>
 

@@ -6,7 +6,16 @@ export const redis = new Redis({
   token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-// Keys
+// Order keys
 export const ORDERS_QUEUE = "orders:queue";
 export const orderKey = (id: string) => `orders:${id}`;
 export const userOrderKey = (userId: string) => `user:orders:${userId}`;
+export const orderVoteKey = (orderId: string, userId: string) => `votes:${orderId}:${userId}`;
+
+// Message keys
+export const MESSAGES_LIST = "messages:list";
+export const messageKey = (id: string) => `messages:${id}`;
+
+// Photo keys
+export const PHOTOS_LIST = "photos:list";
+export const photoKey = (id: string) => `photos:${id}`;

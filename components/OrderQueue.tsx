@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
 import { Order } from "@/lib/types";
 
@@ -11,12 +11,38 @@ interface OrderQueueProps {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+// Sound effects
+const playSound = (type: "up" | "down") => {
+  const audioContext = new (window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  if (type === "up") {
+    oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
+  } else {
+    oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
+  }
+
+  oscillator.type = "sine";
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.15);
+};
+
 export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) {
   const [staffKey, setStaffKey] = useState<string>("");
   const [showStaffInput, setShowStaffInput] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
   const [completing, setCompleting] = useState<string | null>(null);
   const [canceling, setCanceling] = useState<string | null>(null);
+  const [voting, setVoting] = useState<string | null>(null);
 
   const { data, mutate } = useSWR<{ orders: Order[] }>("/api/orders", fetcher, {
     refreshInterval: 3000,
@@ -75,6 +101,25 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
       console.error("Failed to complete order");
     } finally {
       setCompleting(null);
+    }
+  };
+
+  const vote = async (orderId: string, voteType: "up" | "down") => {
+    setVoting(orderId);
+    try {
+      playSound(voteType);
+      const res = await fetch(`/api/vote/${orderId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vote: voteType }),
+      });
+      if (res.ok) {
+        mutate();
+      }
+    } catch {
+      console.error("Failed to vote");
+    } finally {
+      setVoting(null);
     }
   };
 
@@ -163,6 +208,27 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
                       &ldquo;{order.comment}&rdquo;
                     </div>
                   )}
+                </div>
+
+                {/* Vote buttons */}
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    onClick={() => vote(order.id, "up")}
+                    disabled={voting === order.id}
+                    className="text-green-400 hover:text-green-300 hover:bg-green-900/30 p-1 rounded transition-all disabled:opacity-50"
+                  >
+                    ▲
+                  </button>
+                  <span className="text-xs font-bold text-white">
+                    {(order.upvotes || 0) - (order.downvotes || 0)}
+                  </span>
+                  <button
+                    onClick={() => vote(order.id, "down")}
+                    disabled={voting === order.id}
+                    className="text-red-400 hover:text-red-300 hover:bg-red-900/30 p-1 rounded transition-all disabled:opacity-50"
+                  >
+                    ▼
+                  </button>
                 </div>
               </div>
 

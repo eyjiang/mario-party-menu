@@ -7,6 +7,8 @@ export interface Order {
   isNonAlcoholic: boolean;
   comment: string;
   timestamp: number;
+  upvotes: number;
+  downvotes: number;
 }
 
 export interface Drink {
@@ -20,4 +22,21 @@ export interface Drink {
   glowColor: string;
   borderColor: string;
   emoji: string;
+}
+
+export interface SecretMessage {
+  id: string;
+  fromUserId: string;
+  fromUserName: string;
+  toUserName: string;
+  message: string;
+  timestamp: number;
+}
+
+export interface Photo {
+  id: string;
+  userId: string;
+  userName: string;
+  dataUrl: string;
+  timestamp: number;
 }

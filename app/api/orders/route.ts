@@ -28,6 +28,8 @@ export async function GET() {
           isNonAlcoholic: order.isNonAlcoholic === "true",
           comment: (order.comment as string) || "",
           timestamp: Number(order.timestamp),
+          upvotes: Number(order.upvotes) || 0,
+          downvotes: Number(order.downvotes) || 0,
         });
       }
     }
@@ -90,8 +92,10 @@ export async function POST(request: NextRequest) {
       userName: userName || "Anonymous",
       userId,
       isNonAlcoholic: isNonAlcoholic || false,
-      comment: (comment || "").slice(0, 800), // Limit comment length
+      comment: (comment || "").slice(0, 800),
       timestamp,
+      upvotes: 0,
+      downvotes: 0,
     };
 
     // Store order in Redis
@@ -99,6 +103,8 @@ export async function POST(request: NextRequest) {
       ...order,
       isNonAlcoholic: String(order.isNonAlcoholic),
       timestamp: String(timestamp),
+      upvotes: "0",
+      downvotes: "0",
     });
     await redis.zadd(ORDERS_QUEUE, { score: timestamp, member: orderId });
     await redis.set(userOrderKey(userId), orderId);

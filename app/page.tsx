@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from "uuid";
 import NameInput from "@/components/NameInput";
 import Menu from "@/components/Menu";
 import OrderQueue from "@/components/OrderQueue";
+import SecretMessages from "@/components/SecretMessages";
+import PhotoUpload from "@/components/PhotoUpload";
 import { Order } from "@/lib/types";
 
 export default function Home() {
@@ -79,6 +81,12 @@ export default function Home() {
               <OrderQueue userId={userId} onOrdersChange={handleOrdersChange} />
             </div>
           </div>
+        </div>
+
+        {/* Social Features */}
+        <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <SecretMessages />
+          <PhotoUpload />
         </div>
 
         {/* Footer */}
