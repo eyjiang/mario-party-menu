@@ -29,7 +29,6 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
   }, [orders, onOrdersChange]);
 
   useEffect(() => {
-    // Check for saved staff key
     const savedKey = localStorage.getItem("staffKey");
     if (savedKey) {
       setStaffKey(savedKey);
@@ -48,12 +47,8 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
   const cancelOrder = async (orderId: string) => {
     setCanceling(orderId);
     try {
-      const res = await fetch(`/api/orders/${orderId}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        mutate();
-      }
+      const res = await fetch(`/api/orders/${orderId}`, { method: "DELETE" });
+      if (res.ok) mutate();
     } catch {
       console.error("Failed to cancel order");
     } finally {
@@ -72,7 +67,6 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
       if (res.ok) {
         mutate();
       } else if (res.status === 403) {
-        // Invalid staff key
         localStorage.removeItem("staffKey");
         setIsStaff(false);
         setStaffKey("");
@@ -85,19 +79,23 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4">
+    <div className="bg-gradient-to-b from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-2xl p-5 border-2 border-yellow-500/50 shadow-lg shadow-yellow-500/20">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">Order Queue</h2>
+        <h2 className="text-2xl font-bold font-[family-name:var(--font-press-start)] text-yellow-400 text-sm">
+          📋 QUEUE
+        </h2>
         {!isStaff && !showStaffInput && (
           <button
             onClick={() => setShowStaffInput(true)}
-            className="text-sm text-gray-400 hover:text-white transition-colors"
+            className="text-xs text-gray-400 hover:text-yellow-400 transition-colors"
           >
-            Staff Login
+            🔐 Staff
           </button>
         )}
         {isStaff && (
-          <span className="text-sm text-green-400">Staff Mode</span>
+          <span className="text-xs text-green-400 font-bold bg-green-900/50 px-2 py-1 rounded">
+            ✓ STAFF
+          </span>
         )}
       </div>
 
@@ -108,64 +106,75 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
             value={staffKey}
             onChange={(e) => setStaffKey(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && enableStaffMode()}
-            placeholder="Staff passphrase"
-            className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+            placeholder="Passphrase"
+            className="flex-1 bg-black/50 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500"
           />
           <button
             onClick={enableStaffMode}
-            className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-medium transition-colors"
+            className="bg-green-600 hover:bg-green-500 px-3 py-2 rounded-lg text-sm font-bold transition-colors"
           >
-            Unlock
+            ✓
           </button>
           <button
             onClick={() => setShowStaffInput(false)}
-            className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded font-medium transition-colors"
+            className="bg-gray-600 hover:bg-gray-500 px-3 py-2 rounded-lg text-sm transition-colors"
           >
-            Cancel
+            ✕
           </button>
         </div>
       )}
 
       {orders.length === 0 ? (
-        <p className="text-gray-400 text-center py-8">No pending orders</p>
+        <div className="text-center py-8">
+          <div className="text-4xl mb-3 animate-bounce">🍹</div>
+          <p className="text-gray-400 text-sm">No orders yet!</p>
+          <p className="text-gray-500 text-xs">Be the first to order</p>
+        </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
           {orders.map((order, index) => (
             <div
               key={order.id}
-              className="flex items-center justify-between bg-gray-700 rounded-lg p-3"
+              className={`
+                relative overflow-hidden
+                bg-gradient-to-r from-gray-700/50 to-gray-800/50
+                rounded-xl p-3
+                border border-gray-600/50
+                ${order.userId === userId ? "ring-2 ring-yellow-500/50" : ""}
+                transform transition-all hover:scale-[1.02]
+              `}
             >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-bold text-gray-500">
-                  #{index + 1}
-                </span>
-                <div>
-                  <span className="font-medium">
+              <div className="flex items-start gap-3">
+                <div className="text-2xl font-bold text-yellow-500 font-[family-name:var(--font-press-start)] text-xs bg-yellow-500/20 w-8 h-8 rounded-lg flex items-center justify-center">
+                  {index + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-white truncate">
                     {order.drinkName}
-                    {order.isNonAlcoholic && (
-                      <span className="text-blue-400 ml-1">(NA)</span>
-                    )}
-                  </span>
-                  <span className="text-gray-400 ml-2">for {order.userName}</span>
+                  </div>
+                  <div className="text-sm text-gray-400 truncate">
+                    for <span className="text-blue-400">{order.userName}</span>
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-2">
+
+              <div className="flex gap-2 mt-2">
                 {order.userId === userId && (
                   <button
                     onClick={() => cancelOrder(order.id)}
                     disabled={canceling === order.id}
-                    className="text-red-400 hover:text-red-300 text-sm px-2 py-1 transition-colors disabled:opacity-50"
+                    className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 text-xs px-2 py-1.5 rounded-lg transition-all disabled:opacity-50 border border-red-500/30"
                   >
-                    {canceling === order.id ? "..." : "Cancel"}
+                    {canceling === order.id ? "..." : "❌ Cancel"}
                   </button>
                 )}
                 {isStaff && (
                   <button
                     onClick={() => completeOrder(order.id)}
                     disabled={completing === order.id}
-                    className="bg-green-600 hover:bg-green-700 text-sm px-3 py-1 rounded transition-colors disabled:opacity-50"
+                    className="flex-1 bg-green-600 hover:bg-green-500 text-xs px-2 py-1.5 rounded-lg transition-colors disabled:opacity-50 font-bold"
                   >
-                    {completing === order.id ? "..." : "Complete"}
+                    {completing === order.id ? "..." : "✓ DONE"}
                   </button>
                 )}
               </div>
@@ -173,6 +182,12 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
           ))}
         </div>
       )}
+
+      <div className="mt-4 pt-3 border-t border-gray-700/50 text-center">
+        <p className="text-xs text-gray-500">
+          {orders.length} order{orders.length !== 1 ? "s" : ""} in queue
+        </p>
+      </div>
     </div>
   );
 }

@@ -14,4 +14,9 @@ export interface Drink {
   ingredients: string[];
   hasNaOption: boolean;
   color: string;
+  image: string;
+  fontClass: string;
+  glowColor: string;
+  borderColor: string;
+  emoji: string;
 }
