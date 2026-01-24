@@ -19,3 +19,10 @@ export const messageKey = (id: string) => `messages:${id}`;
 // Photo keys
 export const PHOTOS_LIST = "photos:list";
 export const photoKey = (id: string) => `photos:${id}`;
+
+// Bet keys
+export const BETS_OPEN = "bets:open";
+export const BETS_RESOLVED = "bets:resolved";
+export const betKey = (id: string) => `bets:${id}`;
+export const betCommentsKey = (betId: string) => `bets:${betId}:comments`;
+export const betVoteKey = (betId: string, oderId: string) => `bets:${betId}:votes:${oderId}`;

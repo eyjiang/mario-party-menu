@@ -41,3 +41,32 @@ export interface Photo {
   dataUrl: string;
   timestamp: number;
 }
+
+export interface Bet {
+  id: string;
+  creatorId: string;
+  creatorName: string;
+  creatorVenmo?: string;
+  description: string;
+  amount: number;
+  amountType: "dollars" | "shots";
+  status: "open" | "locked" | "resolved";
+  takerId?: string;
+  takerName?: string;
+  takerVenmo?: string;
+  winnerId?: string;
+  winnerName?: string;
+  votesForCreator: number;
+  votesForTaker: number;
+  timestamp: number;
+  resolvedAt?: number;
+}
+
+export interface BetComment {
+  id: string;
+  betId: string;
+  userId: string;
+  userName: string;
+  message: string;
+  timestamp: number;
+}

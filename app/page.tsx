@@ -8,6 +8,7 @@ import OrderQueue from "@/components/OrderQueue";
 import SecretMessages from "@/components/SecretMessages";
 import PhotoUpload from "@/components/PhotoUpload";
 import GlobalChat from "@/components/GlobalChat";
+import BettingSection from "@/components/BettingSection";
 import { Order } from "@/lib/types";
 
 export default function Home() {
@@ -82,6 +83,11 @@ export default function Home() {
               <OrderQueue userId={userId} onOrdersChange={handleOrdersChange} />
             </div>
           </div>
+        </div>
+
+        {/* Betting Section */}
+        <div className="mt-12">
+          <BettingSection userId={userId} />
         </div>
 
         {/* Social Features */}
