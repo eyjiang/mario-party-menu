@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import { drinks } from "@/lib/drinks";
 import { Drink } from "@/lib/types";
 
@@ -10,60 +9,329 @@ interface MenuProps {
   hasActiveOrder: boolean;
 }
 
+// 8-bit color palettes for each drink
+const drinkPixelColors: Record<string, string[]> = {
+  "yoshis-egg": ["#4ade80", "#22c55e", "#15803d", "#ffffff"],
+  "waluigi-tales-flight": ["#a855f7", "#7c3aed", "#581c87", "#c084fc"],
+  "brothers-highball": ["#ef4444", "#22c55e", "#dc2626", "#16a34a"],
+  "marios-bawlz": ["#ef4444", "#f97316", "#fbbf24", "#dc2626"],
+  "daisy": ["#fbbf24", "#f97316", "#fb923c", "#fef3c7"],
+  "bowser-bomb": ["#ea580c", "#dc2626", "#92400e", "#fbbf24"],
+  "donkey-kong": ["#d97706", "#92400e", "#fbbf24", "#78350f"],
+  "bowser-space": ["#6b21a8", "#1f2937", "#581c87", "#374151"],
+};
+
+// Simple 8-bit drink representations (8x8 pixel patterns)
+const DrinkPixelArt = ({ drink, size = 64 }: { drink: Drink; size?: number }) => {
+  const colors = drinkPixelColors[drink.id] || ["#888", "#666", "#444", "#aaa"];
+  const pixelSize = size / 8;
+
+  // Different patterns for each drink type
+  const patterns: Record<string, number[][]> = {
+    "yoshis-egg": [
+      [0,0,1,1,1,1,0,0],
+      [0,1,3,3,3,3,1,0],
+      [1,3,3,1,1,3,3,1],
+      [1,3,1,0,0,1,3,1],
+      [1,3,1,0,0,1,3,1],
+      [1,3,3,1,1,3,3,1],
+      [0,1,3,3,3,3,1,0],
+      [0,0,1,1,1,1,0,0],
+    ],
+    "waluigi-tales-flight": [
+      [0,0,0,1,1,0,0,0],
+      [0,0,1,2,2,1,0,0],
+      [0,1,2,3,3,2,1,0],
+      [1,2,2,2,2,2,2,1],
+      [0,1,2,2,2,2,1,0],
+      [0,0,1,2,2,1,0,0],
+      [0,0,0,1,1,0,0,0],
+      [0,0,0,1,1,0,0,0],
+    ],
+    "brothers-highball": [
+      [0,0,1,1,1,1,0,0],
+      [0,1,0,0,0,0,1,0],
+      [0,1,2,2,2,2,1,0],
+      [0,1,2,0,0,2,1,0],
+      [0,1,0,2,2,0,1,0],
+      [0,1,0,0,0,0,1,0],
+      [0,0,1,1,1,1,0,0],
+      [0,0,0,1,1,0,0,0],
+    ],
+    "marios-bawlz": [
+      [0,0,1,1,1,1,0,0],
+      [0,1,0,0,0,0,1,0],
+      [1,0,2,0,0,2,0,1],
+      [1,0,0,0,0,0,0,1],
+      [1,0,3,0,0,3,0,1],
+      [1,0,0,3,3,0,0,1],
+      [0,1,0,0,0,0,1,0],
+      [0,0,1,1,1,1,0,0],
+    ],
+    "daisy": [
+      [0,0,0,1,1,0,0,0],
+      [0,1,0,2,2,0,1,0],
+      [0,0,2,3,3,2,0,0],
+      [1,2,3,3,3,3,2,1],
+      [1,2,3,3,3,3,2,1],
+      [0,0,2,3,3,2,0,0],
+      [0,1,0,2,2,0,1,0],
+      [0,0,0,1,1,0,0,0],
+    ],
+    "bowser-bomb": [
+      [0,0,0,1,1,0,0,0],
+      [0,0,1,3,3,1,0,0],
+      [0,1,0,0,0,0,1,0],
+      [1,0,2,0,0,2,0,1],
+      [1,0,0,0,0,0,0,1],
+      [1,0,2,2,2,2,0,1],
+      [0,1,0,0,0,0,1,0],
+      [0,0,1,1,1,1,0,0],
+    ],
+    "donkey-kong": [
+      [0,1,1,1,1,1,1,0],
+      [1,2,2,2,2,2,2,1],
+      [1,2,3,2,2,3,2,1],
+      [1,2,2,2,2,2,2,1],
+      [0,1,2,2,2,2,1,0],
+      [0,0,1,2,2,1,0,0],
+      [0,0,1,2,2,1,0,0],
+      [0,0,0,1,1,0,0,0],
+    ],
+    "bowser-space": [
+      [0,0,1,1,1,1,0,0],
+      [0,1,2,2,2,2,1,0],
+      [1,2,3,2,2,3,2,1],
+      [1,2,2,2,2,2,2,1],
+      [1,2,2,3,3,2,2,1],
+      [1,2,2,2,2,2,2,1],
+      [0,1,2,2,2,2,1,0],
+      [0,0,1,1,1,1,0,0],
+    ],
+  };
+
+  const pattern = patterns[drink.id] || patterns["yoshis-egg"];
+
+  return (
+    <div
+      className="relative"
+      style={{
+        width: size,
+        height: size,
+        imageRendering: "pixelated",
+      }}
+    >
+      {pattern.map((row, y) => (
+        row.map((colorIdx, x) => (
+          colorIdx > 0 && (
+            <div
+              key={`${x}-${y}`}
+              style={{
+                position: "absolute",
+                left: x * pixelSize,
+                top: y * pixelSize,
+                width: pixelSize,
+                height: pixelSize,
+                backgroundColor: colors[colorIdx - 1],
+              }}
+            />
+          )
+        ))
+      ))}
+    </div>
+  );
+};
+
+// 8-bit gun in center
+const PixelGun = ({ rotation }: { rotation: number }) => {
+  return (
+    <div
+      className="transition-transform duration-100"
+      style={{
+        transform: `rotate(${rotation}deg)`,
+        width: 80,
+        height: 80,
+        imageRendering: "pixelated",
+      }}
+    >
+      <svg viewBox="0 0 16 16" className="w-full h-full" style={{ imageRendering: "pixelated" }}>
+        {/* Gun barrel pointing up */}
+        <rect x="7" y="0" width="2" height="6" fill="#374151" />
+        <rect x="6" y="2" width="1" height="2" fill="#4b5563" />
+        <rect x="9" y="2" width="1" height="2" fill="#4b5563" />
+        {/* Gun body */}
+        <rect x="5" y="6" width="6" height="4" fill="#1f2937" />
+        <rect x="6" y="7" width="4" height="2" fill="#374151" />
+        {/* Handle */}
+        <rect x="6" y="10" width="4" height="4" fill="#78350f" />
+        <rect x="7" y="11" width="2" height="2" fill="#92400e" />
+        {/* Trigger */}
+        <rect x="5" y="8" width="1" height="2" fill="#1f2937" />
+      </svg>
+    </div>
+  );
+};
+
+// Modal component
+const OrderModal = ({
+  drink,
+  onClose,
+  onOrder,
+  isOrdering,
+  hasActiveOrder,
+  naSelection,
+  onToggleNa,
+  comment,
+  onCommentChange,
+}: {
+  drink: Drink;
+  onClose: () => void;
+  onOrder: () => void;
+  isOrdering: boolean;
+  hasActiveOrder: boolean;
+  naSelection: boolean;
+  onToggleNa: () => void;
+  comment: string;
+  onCommentChange: (c: string) => void;
+}) => {
+  const colors = drinkPixelColors[drink.id] || ["#888", "#666", "#444", "#aaa"];
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-gray-900 rounded-2xl p-6 max-w-md w-full border-4 relative overflow-hidden"
+        style={{ borderColor: colors[0] }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Pixel decoration corners */}
+        <div className="absolute top-0 left-0 w-4 h-4" style={{ backgroundColor: colors[1] }} />
+        <div className="absolute top-0 right-0 w-4 h-4" style={{ backgroundColor: colors[1] }} />
+        <div className="absolute bottom-0 left-0 w-4 h-4" style={{ backgroundColor: colors[1] }} />
+        <div className="absolute bottom-0 right-0 w-4 h-4" style={{ backgroundColor: colors[1] }} />
+
+        <div className="flex items-center gap-4 mb-4">
+          <DrinkPixelArt drink={drink} size={80} />
+          <div>
+            <h2 className={`text-2xl font-bold ${drink.fontClass}`} style={{ color: colors[0] }}>
+              {drink.name}
+            </h2>
+            <p className="text-4xl">{drink.emoji}</p>
+          </div>
+        </div>
+
+        <div className="bg-black/50 rounded-xl p-4 mb-4">
+          <p className="text-sm text-gray-300 mb-3">
+            {drink.ingredients.join(" | ")}
+          </p>
+          <textarea
+            value={comment}
+            onChange={(e) => onCommentChange(e.target.value.slice(0, 800))}
+            placeholder="Add a note... (optional)"
+            className="w-full bg-black/50 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 resize-none"
+            rows={2}
+          />
+        </div>
+
+        <div className="flex items-center gap-3">
+          {drink.hasNaOption && (
+            <label className="flex items-center gap-2 cursor-pointer bg-black/50 px-4 py-3 rounded-xl border border-gray-600">
+              <input
+                type="checkbox"
+                checked={naSelection}
+                onChange={onToggleNa}
+                className="w-5 h-5 rounded accent-blue-500"
+              />
+              <span className="text-sm font-bold">NA</span>
+            </label>
+          )}
+          <button
+            onClick={onOrder}
+            disabled={isOrdering || hasActiveOrder}
+            className="flex-1 py-3 rounded-xl font-bold text-lg transition-all disabled:opacity-50"
+            style={{
+              backgroundColor: hasActiveOrder ? "#374151" : colors[0],
+              color: "#000",
+            }}
+          >
+            {isOrdering ? (
+              <span className="animate-pulse">ORDERING...</span>
+            ) : hasActiveOrder ? (
+              <span>✓ ORDER PLACED</span>
+            ) : (
+              "ORDER"
+            )}
+          </button>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl w-8 h-8 flex items-center justify-center"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
+  const [selectedDrink, setSelectedDrink] = useState<Drink | null>(null);
   const [ordering, setOrdering] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [naSelections, setNaSelections] = useState<Record<string, boolean>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
-  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
-  const [isShuffling, setIsShuffling] = useState(false);
-  const shuffleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [gunRotation, setGunRotation] = useState(0);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const spinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const toggleNa = (drinkId: string) => {
     setNaSelections((prev) => ({ ...prev, [drinkId]: !prev[drinkId] }));
   };
 
-  const updateComment = (drinkId: string, comment: string) => {
-    // Limit to ~140 words (roughly 800 chars)
-    if (comment.length <= 800) {
-      setComments((prev) => ({ ...prev, [drinkId]: comment }));
-    }
-  };
+  const spinGun = () => {
+    if (isSpinning || hasActiveOrder) return;
 
-  const randomDrink = () => {
-    if (isShuffling || hasActiveOrder) return;
+    setIsSpinning(true);
+    const targetIndex = Math.floor(Math.random() * drinks.length);
+    const targetAngle = targetIndex * 45; // 360/8 = 45 degrees per drink
+    const spins = 3 + Math.random() * 2; // 3-5 full rotations
+    const finalRotation = spins * 360 + targetAngle;
 
-    setIsShuffling(true);
-    let iterations = 0;
-    const totalIterations = 20 + Math.floor(Math.random() * 10); // 20-30 iterations
-    const finalIndex = Math.floor(Math.random() * drinks.length);
+    let currentRotation = gunRotation;
+    const totalDuration = 3000; // 3 seconds
+    const startTime = Date.now();
 
-    const shuffle = () => {
-      iterations++;
-      const currentIndex = iterations % drinks.length;
-      setHighlightedIndex(currentIndex);
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / totalDuration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
 
-      if (iterations < totalIterations) {
-        // Speed up then slow down
-        const progress = iterations / totalIterations;
-        const delay = 50 + Math.pow(progress, 2) * 300; // 50ms to 350ms
-        shuffleTimeoutRef.current = setTimeout(shuffle, delay);
+      currentRotation = gunRotation + (finalRotation - gunRotation) * eased;
+      setGunRotation(currentRotation);
+
+      if (progress < 1) {
+        spinTimeoutRef.current = setTimeout(animate, 16);
       } else {
-        // Land on final selection
-        setHighlightedIndex(finalIndex);
+        setGunRotation(finalRotation % 360);
+        setIsSpinning(false);
+        // Open the modal for the selected drink
         setTimeout(() => {
-          setIsShuffling(false);
-        }, 2000);
+          setSelectedDrink(drinks[targetIndex]);
+        }, 500);
       }
     };
 
-    shuffle();
+    animate();
   };
 
   useEffect(() => {
     return () => {
-      if (shuffleTimeoutRef.current) {
-        clearTimeout(shuffleTimeoutRef.current);
+      if (spinTimeoutRef.current) {
+        clearTimeout(spinTimeoutRef.current);
       }
     };
   }, []);
@@ -102,8 +370,8 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
         return;
       }
 
-      // Clear the comment after ordering
       setComments((prev) => ({ ...prev, [drink.id]: "" }));
+      setSelectedDrink(null);
       onOrderPlaced();
     } catch {
       setError("Failed to place order");
@@ -112,131 +380,131 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
     }
   };
 
+  // Calculate positions around the table
+  const tableRadius = 140;
+  const drinkPositions = drinks.map((_, index) => {
+    const angle = (index * 45 - 90) * (Math.PI / 180); // Start from top, go clockwise
+    return {
+      x: Math.cos(angle) * tableRadius,
+      y: Math.sin(angle) * tableRadius,
+    };
+  });
+
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
-        <h2 className="text-4xl font-bold text-center font-[family-name:var(--font-press-start)] text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-400 to-green-500 animate-pulse drop-shadow-lg">
-          MENU
-        </h2>
-        <button
-          onClick={randomDrink}
-          disabled={isShuffling || hasActiveOrder}
-          className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-400 hover:via-purple-400 hover:to-indigo-400 disabled:from-gray-600 disabled:to-gray-700 px-6 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg animate-pulse disabled:animate-none"
-        >
-          🎲 RANDOM DRINK
-        </button>
-      </div>
+    <div className="flex flex-col items-center">
+      <h2 className="text-4xl font-bold mb-6 text-center font-[family-name:var(--font-press-start)] text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-400 to-green-500 drop-shadow-lg">
+        MENU
+      </h2>
+
       {error && (
-        <div className="bg-red-900/50 border-4 border-red-500 rounded-xl p-4 mb-6 text-red-200 text-center font-bold animate-bounce">
+        <div className="bg-red-900/50 border-4 border-red-500 rounded-xl p-4 mb-6 text-red-200 text-center font-bold">
           {error}
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 p-2">
-        {drinks.map((drink, index) => (
+
+      {/* 8-bit Table */}
+      <div className="relative" style={{ width: 400, height: 400 }}>
+        {/* Table surface */}
+        <div
+          className="absolute rounded-full border-8 border-amber-900"
+          style={{
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 340,
+            height: 340,
+            background: "radial-gradient(circle, #065f46 0%, #064e3b 50%, #022c22 100%)",
+            boxShadow: "inset 0 0 60px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.5)",
+          }}
+        >
+          {/* Table felt pattern */}
           <div
+            className="absolute inset-4 rounded-full border-2 border-emerald-700/30"
+          />
+        </div>
+
+        {/* Drinks around the table */}
+        {drinks.map((drink, index) => {
+          const pos = drinkPositions[index];
+          const isHighlighted = !isSpinning && Math.round(gunRotation / 45) % 8 === index;
+
+          return (
+            <button
+              key={drink.id}
+              onClick={() => setSelectedDrink(drink)}
+              className={`
+                absolute transition-all duration-300 hover:scale-125 focus:outline-none
+                ${isHighlighted ? "scale-125 z-10" : ""}
+              `}
+              style={{
+                left: `calc(50% + ${pos.x}px)`,
+                top: `calc(50% + ${pos.y}px)`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <div className={`
+                relative p-2 rounded-lg transition-all
+                ${isHighlighted ? "bg-yellow-400/30 ring-4 ring-yellow-400" : "hover:bg-white/10"}
+              `}>
+                <DrinkPixelArt drink={drink} size={56} />
+                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-bold text-white whitespace-nowrap font-[family-name:var(--font-press-start)] text-center" style={{ fontSize: "6px" }}>
+                  {drink.emoji}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+
+        {/* Gun in center */}
+        <button
+          onClick={spinGun}
+          disabled={isSpinning || hasActiveOrder}
+          className={`
+            absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+            transition-all hover:scale-110 focus:outline-none
+            ${isSpinning ? "cursor-wait" : "cursor-pointer"}
+            disabled:opacity-50
+          `}
+        >
+          <PixelGun rotation={gunRotation} />
+        </button>
+
+        {/* Spin instruction */}
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-center">
+          <p className="text-xs text-gray-400 font-[family-name:var(--font-press-start)]">
+            {isSpinning ? "SPINNING..." : "CLICK GUN TO SPIN"}
+          </p>
+        </div>
+      </div>
+
+      {/* Drink names legend */}
+      <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        {drinks.map((drink) => (
+          <button
             key={drink.id}
-            className={`
-              relative overflow-hidden
-              bg-gradient-to-br ${drink.color}
-              rounded-2xl p-6 text-white
-              shadow-2xl ${drink.glowColor}/50
-              border-4 ${highlightedIndex === index ? "border-yellow-300 ring-4 ring-yellow-400 scale-105" : drink.borderColor}
-              transform hover:scale-105 hover:rotate-1
-              transition-all duration-300 ease-out
-              hover:shadow-3xl
-              flex flex-col
-              min-h-[380px]
-              group
-              ${highlightedIndex === index && !isShuffling ? "animate-pulse" : ""}
-            `}
+            onClick={() => setSelectedDrink(drink)}
+            className="flex items-center gap-2 bg-gray-800/50 hover:bg-gray-700/50 px-3 py-2 rounded-lg transition-colors"
           >
-            {/* Sparkle effects */}
-            <div className="absolute top-2 right-2 text-2xl animate-spin-slow opacity-80 hidden sm:block">✨</div>
-            <div className="absolute bottom-24 left-2 text-xl animate-bounce opacity-60">⭐</div>
-
-            {/* Character image - hidden on mobile, visible on larger screens */}
-            <div className="absolute -right-4 -top-4 w-24 h-24 sm:w-32 sm:h-32 opacity-0 sm:opacity-30 group-hover:opacity-60 group-hover:scale-110 transition-all duration-300 pointer-events-none">
-              <Image
-                src={drink.image}
-                alt={drink.name}
-                width={128}
-                height={128}
-                className="object-contain drop-shadow-lg"
-              />
-            </div>
-
-            {/* Emoji decoration */}
-            <div className="text-4xl mb-2 animate-bounce">{drink.emoji}</div>
-
-            {/* Drink name with custom font */}
-            <h3 className={`text-2xl font-bold mb-3 ${drink.fontClass} drop-shadow-lg leading-tight`}>
-              {drink.name}
-            </h3>
-
-            {/* Ingredients + Comment area */}
-            <div className="bg-black/30 backdrop-blur-sm rounded-xl p-4 mb-4 flex-grow flex flex-col gap-3">
-              <p className="text-sm opacity-90 leading-relaxed">
-                {drink.ingredients.join(" | ")}
-              </p>
-              <textarea
-                value={comments[drink.id] || ""}
-                onChange={(e) => updateComment(drink.id, e.target.value)}
-                placeholder="Add a note... (optional)"
-                className="w-full bg-black/30 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:border-yellow-400 resize-none"
-                rows={2}
-                maxLength={800}
-              />
-            </div>
-
-            {/* Order button with NA checkbox */}
-            <div className="flex items-center gap-3 mt-auto">
-              {drink.hasNaOption && (
-                <label className="flex items-center gap-1.5 cursor-pointer bg-black/30 backdrop-blur-sm px-3 py-3 rounded-xl border border-white/30 hover:bg-black/40 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={naSelections[drink.id] || false}
-                    onChange={() => toggleNa(drink.id)}
-                    className="w-5 h-5 rounded accent-blue-500"
-                  />
-                  <span className="text-xs font-bold whitespace-nowrap">NA</span>
-                </label>
-              )}
-              <button
-                onClick={() => placeOrder(drink)}
-                disabled={ordering !== null || hasActiveOrder}
-                className={`
-                  flex-1
-                  bg-white/30 hover:bg-white/50
-                  disabled:bg-white/10 disabled:cursor-not-allowed
-                  backdrop-blur-md
-                  px-6 py-3 rounded-xl
-                  font-bold text-lg
-                  transition-all duration-200
-                  border-2 border-white/50
-                  shadow-lg hover:shadow-xl
-                  transform hover:-translate-y-1
-                  active:translate-y-0
-                  ${ordering === drink.id ? "animate-pulse" : ""}
-                `}
-              >
-                {ordering === drink.id ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="animate-spin">🌀</span> Ordering...
-                  </span>
-                ) : hasActiveOrder ? (
-                  <span className="flex items-center justify-center gap-2 text-green-300">
-                    ✓ ORDER PLACED
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    ORDER
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
+            <span>{drink.emoji}</span>
+            <span className="truncate">{drink.name}</span>
+          </button>
         ))}
       </div>
+
+      {/* Order Modal */}
+      {selectedDrink && (
+        <OrderModal
+          drink={selectedDrink}
+          onClose={() => setSelectedDrink(null)}
+          onOrder={() => placeOrder(selectedDrink)}
+          isOrdering={ordering === selectedDrink.id}
+          hasActiveOrder={hasActiveOrder}
+          naSelection={naSelections[selectedDrink.id] || false}
+          onToggleNa={() => toggleNa(selectedDrink.id)}
+          comment={comments[selectedDrink.id] || ""}
+          onCommentChange={(c) => setComments((prev) => ({ ...prev, [selectedDrink.id]: c }))}
+        />
+      )}
     </div>
   );
 }
