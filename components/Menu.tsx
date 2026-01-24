@@ -142,31 +142,57 @@ const DrinkPixelArt = ({ drink, size = 64 }: { drink: Drink; size?: number }) =>
   );
 };
 
-// 8-bit gun in center
-const PixelGun = ({ rotation }: { rotation: number }) => {
+// 8-bit revolver in center
+const PixelRevolver = ({ rotation }: { rotation: number }) => {
   return (
     <div
-      className="transition-transform duration-100"
       style={{
         transform: `rotate(${rotation}deg)`,
-        width: 80,
-        height: 80,
-        imageRendering: "pixelated",
+        width: 100,
+        height: 100,
       }}
     >
-      <svg viewBox="0 0 16 16" className="w-full h-full" style={{ imageRendering: "pixelated" }}>
-        {/* Gun barrel pointing up */}
-        <rect x="7" y="0" width="2" height="6" fill="#374151" />
-        <rect x="6" y="2" width="1" height="2" fill="#4b5563" />
-        <rect x="9" y="2" width="1" height="2" fill="#4b5563" />
-        {/* Gun body */}
-        <rect x="5" y="6" width="6" height="4" fill="#1f2937" />
-        <rect x="6" y="7" width="4" height="2" fill="#374151" />
-        {/* Handle */}
-        <rect x="6" y="10" width="4" height="4" fill="#78350f" />
-        <rect x="7" y="11" width="2" height="2" fill="#92400e" />
+      <svg viewBox="0 0 24 24" className="w-full h-full" style={{ imageRendering: "pixelated" }}>
+        {/* Barrel pointing up */}
+        <rect x="11" y="0" width="2" height="7" fill="#4b5563" />
+        <rect x="10" y="1" width="1" height="5" fill="#6b7280" />
+        <rect x="13" y="1" width="1" height="5" fill="#374151" />
+        {/* Front sight */}
+        <rect x="11" y="0" width="2" height="1" fill="#9ca3af" />
+
+        {/* Cylinder (the round part) */}
+        <rect x="9" y="7" width="6" height="5" fill="#4b5563" />
+        <rect x="8" y="8" width="1" height="3" fill="#6b7280" />
+        <rect x="15" y="8" width="1" height="3" fill="#374151" />
+        <rect x="10" y="8" width="4" height="3" fill="#6b7280" />
+        {/* Cylinder holes */}
+        <rect x="10" y="9" width="1" height="1" fill="#1f2937" />
+        <rect x="13" y="9" width="1" height="1" fill="#1f2937" />
+        <rect x="11" y="8" width="2" height="1" fill="#1f2937" />
+        <rect x="11" y="10" width="2" height="1" fill="#1f2937" />
+
+        {/* Frame */}
+        <rect x="9" y="12" width="6" height="3" fill="#374151" />
+        <rect x="10" y="13" width="4" height="1" fill="#4b5563" />
+
+        {/* Trigger guard */}
+        <rect x="8" y="13" width="1" height="3" fill="#374151" />
+        <rect x="8" y="16" width="3" height="1" fill="#374151" />
         {/* Trigger */}
-        <rect x="5" y="8" width="1" height="2" fill="#1f2937" />
+        <rect x="9" y="14" width="1" height="2" fill="#1f2937" />
+
+        {/* Grip/Handle */}
+        <rect x="10" y="15" width="4" height="6" fill="#78350f" />
+        <rect x="11" y="16" width="2" height="4" fill="#92400e" />
+        <rect x="9" y="17" width="1" height="3" fill="#78350f" />
+        <rect x="14" y="17" width="1" height="3" fill="#5c2d0e" />
+        {/* Grip texture */}
+        <rect x="11" y="17" width="1" height="1" fill="#a16207" />
+        <rect x="12" y="19" width="1" height="1" fill="#a16207" />
+
+        {/* Hammer */}
+        <rect x="13" y="6" width="2" height="2" fill="#374151" />
+        <rect x="14" y="5" width="1" height="1" fill="#4b5563" />
       </svg>
     </div>
   );
@@ -285,7 +311,8 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
   const [comments, setComments] = useState<Record<string, string>>({});
   const [gunRotation, setGunRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
-  const spinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const animationRef = useRef<number | null>(null);
+  const gunRef = useRef<HTMLDivElement>(null);
 
   const toggleNa = (drinkId: string) => {
     setNaSelections((prev) => ({ ...prev, [drinkId]: !prev[drinkId] }));
@@ -298,25 +325,29 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
     const targetIndex = Math.floor(Math.random() * drinks.length);
     const targetAngle = targetIndex * 45; // 360/8 = 45 degrees per drink
     const spins = 3 + Math.random() * 2; // 3-5 full rotations
-    const finalRotation = spins * 360 + targetAngle;
-
-    let currentRotation = gunRotation;
+    const startRotation = gunRotation;
+    const finalRotation = startRotation + spins * 360 + targetAngle;
     const totalDuration = 3000; // 3 seconds
-    const startTime = Date.now();
+    const startTime = performance.now();
 
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / totalDuration, 1);
-      // Ease out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
+      // Ease out quart for smoother deceleration
+      const eased = 1 - Math.pow(1 - progress, 4);
 
-      currentRotation = gunRotation + (finalRotation - gunRotation) * eased;
-      setGunRotation(currentRotation);
+      const currentRotation = startRotation + (finalRotation - startRotation) * eased;
+
+      // Update DOM directly for smooth animation
+      if (gunRef.current) {
+        gunRef.current.style.transform = `rotate(${currentRotation}deg)`;
+      }
 
       if (progress < 1) {
-        spinTimeoutRef.current = setTimeout(animate, 16);
+        animationRef.current = requestAnimationFrame(animate);
       } else {
-        setGunRotation(finalRotation % 360);
+        const normalizedRotation = finalRotation % 360;
+        setGunRotation(normalizedRotation);
         setIsSpinning(false);
         // Open the modal for the selected drink
         setTimeout(() => {
@@ -325,13 +356,13 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
       }
     };
 
-    animate();
+    animationRef.current = requestAnimationFrame(animate);
   };
 
   useEffect(() => {
     return () => {
-      if (spinTimeoutRef.current) {
-        clearTimeout(spinTimeoutRef.current);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
       }
     };
   }, []);
@@ -455,24 +486,29 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
           );
         })}
 
-        {/* Gun in center */}
+        {/* Revolver in center */}
         <button
           onClick={spinGun}
           disabled={isSpinning || hasActiveOrder}
           className={`
             absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-            transition-all hover:scale-110 focus:outline-none
+            hover:scale-110 focus:outline-none
             ${isSpinning ? "cursor-wait" : "cursor-pointer"}
             disabled:opacity-50
           `}
         >
-          <PixelGun rotation={gunRotation} />
+          <div
+            ref={gunRef}
+            style={{ transform: `rotate(${gunRotation}deg)` }}
+          >
+            <PixelRevolver rotation={0} />
+          </div>
         </button>
 
         {/* Spin instruction */}
         <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-center">
           <p className="text-xs text-gray-400 font-[family-name:var(--font-press-start)]">
-            {isSpinning ? "SPINNING..." : "CLICK GUN TO SPIN"}
+            {isSpinning ? "SPINNING..." : "SPIN THE REVOLVER"}
           </p>
         </div>
       </div>
