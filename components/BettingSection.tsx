@@ -46,6 +46,7 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
   const [showCelebration, setShowCelebration] = useState(false);
   const [comments, setComments] = useState<BetComment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
+  const [takeError, setTakeError] = useState("");
 
   const isCreator = bet.creatorId === userId;
   const isTaker = bet.takerId === userId;
@@ -83,18 +84,22 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
 
   const takeBet = async () => {
     setLoading(true);
+    setTakeError("");
     try {
       const res = await fetch(`/api/bets/${bet.id}/take`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ venmo: venmoInput }),
       });
+      const data = await res.json();
       if (res.ok) {
         setShowTakeForm(false);
         onUpdate();
+      } else {
+        setTakeError(data.error || "Failed to take bet");
       }
     } catch {
-      console.error("Failed to take bet");
+      setTakeError("Failed to take bet");
     } finally {
       setLoading(false);
     }
@@ -237,6 +242,11 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
 
       {showTakeForm && (
         <div className="bg-black/30 rounded-lg p-3 mb-3">
+          {takeError && (
+            <div className="mb-2 text-red-400 text-xs bg-red-900/30 border border-red-500/50 rounded px-2 py-1">
+              {takeError}
+            </div>
+          )}
           <input
             type="text"
             value={venmoInput}
@@ -253,7 +263,7 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
               {loading ? "..." : "Confirm"}
             </button>
             <button
-              onClick={() => setShowTakeForm(false)}
+              onClick={() => { setShowTakeForm(false); setTakeError(""); }}
               className="px-4 bg-gray-600 hover:bg-gray-500 py-2 rounded-lg transition-colors"
             >
               Cancel
