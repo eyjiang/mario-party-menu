@@ -10,13 +10,8 @@ interface MenuProps {
 }
 
 export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
-  const [naSelections, setNaSelections] = useState<Record<string, boolean>>({});
   const [ordering, setOrdering] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const toggleNa = (drinkId: string) => {
-    setNaSelections((prev) => ({ ...prev, [drinkId]: !prev[drinkId] }));
-  };
 
   const placeOrder = async (drink: Drink) => {
     setOrdering(drink.id);
@@ -40,7 +35,7 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           drinkId: drink.id,
-          isNonAlcoholic: naSelections[drink.id] || false,
+          isNonAlcoholic: false,
           userName: decodeURIComponent(userName),
         }),
       });
@@ -80,15 +75,7 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
             </p>
 
             {drink.hasNaOption && (
-              <label className="flex items-center gap-2 mb-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={naSelections[drink.id] || false}
-                  onChange={() => toggleNa(drink.id)}
-                  className="w-4 h-4 rounded"
-                />
-                <span className="text-sm">Non-alcoholic</span>
-              </label>
+              <p className="text-xs opacity-75 mb-2">* Non-alcoholic available</p>
             )}
 
             <button
