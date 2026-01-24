@@ -13,6 +13,11 @@ interface MenuProps {
 export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
   const [ordering, setOrdering] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [naSelections, setNaSelections] = useState<Record<string, boolean>>({});
+
+  const toggleNa = (drinkId: string) => {
+    setNaSelections((prev) => ({ ...prev, [drinkId]: !prev[drinkId] }));
+  };
 
   const placeOrder = async (drink: Drink) => {
     setOrdering(drink.id);
@@ -35,7 +40,7 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           drinkId: drink.id,
-          isNonAlcoholic: false,
+          isNonAlcoholic: naSelections[drink.id] || false,
           userName: decodeURIComponent(userName),
         }),
       });
@@ -58,11 +63,11 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
   return (
     <div>
       <h2 className="text-4xl font-bold mb-6 text-center font-[family-name:var(--font-press-start)] text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-400 to-green-500 animate-pulse drop-shadow-lg">
-        🍹 MENU 🍹
+        MENU
       </h2>
       {error && (
         <div className="bg-red-900/50 border-4 border-red-500 rounded-xl p-4 mb-6 text-red-200 text-center font-bold animate-bounce">
-          ⚠️ {error} ⚠️
+          {error}
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -79,7 +84,7 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
               transition-all duration-300 ease-out
               hover:shadow-3xl
               flex flex-col
-              min-h-[380px]
+              min-h-[340px]
               group
             `}
           >
@@ -108,56 +113,57 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
 
             {/* Ingredients */}
             <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 mb-3 flex-grow">
-              <ul className="text-sm space-y-1">
-                {drink.ingredients.map((ing, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <span className="text-yellow-300">▸</span>
-                    <span className="opacity-90">{ing}</span>
-                  </li>
-                ))}
-              </ul>
+              <p className="text-sm opacity-90 leading-relaxed">
+                {drink.ingredients.join(" | ")}
+              </p>
             </div>
 
-            {/* NA badge */}
-            {drink.hasNaOption && (
-              <div className="absolute top-3 left-3 bg-blue-500/90 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg animate-pulse">
-                🚫🍺 NA Available
-              </div>
-            )}
-
-            {/* Order button at bottom */}
-            <button
-              onClick={() => placeOrder(drink)}
-              disabled={ordering !== null || hasActiveOrder}
-              className={`
-                w-full mt-auto
-                bg-white/30 hover:bg-white/50
-                disabled:bg-white/10 disabled:cursor-not-allowed
-                backdrop-blur-md
-                px-6 py-3 rounded-xl
-                font-bold text-lg
-                transition-all duration-200
-                border-2 border-white/50
-                shadow-lg hover:shadow-xl
-                transform hover:-translate-y-1
-                active:translate-y-0
-                ${ordering === drink.id ? "animate-pulse" : ""}
-              `}
-            >
-              {ordering === drink.id ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="animate-spin">🌀</span> Ordering...
-                </span>
-              ) : hasActiveOrder ? (
-                <span className="flex items-center justify-center gap-2">
-                  ⏳ Order Pending...
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  🛒 ORDER NOW!
-                </span>
+            {/* Order button with NA checkbox */}
+            <div className="flex items-center gap-2 mt-auto">
+              {drink.hasNaOption && (
+                <label className="flex items-center gap-1.5 cursor-pointer bg-black/30 backdrop-blur-sm px-3 py-3 rounded-xl border border-white/30 hover:bg-black/40 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={naSelections[drink.id] || false}
+                    onChange={() => toggleNa(drink.id)}
+                    className="w-5 h-5 rounded accent-blue-500"
+                  />
+                  <span className="text-xs font-bold whitespace-nowrap">NA</span>
+                </label>
               )}
-            </button>
+              <button
+                onClick={() => placeOrder(drink)}
+                disabled={ordering !== null || hasActiveOrder}
+                className={`
+                  flex-1
+                  bg-white/30 hover:bg-white/50
+                  disabled:bg-white/10 disabled:cursor-not-allowed
+                  backdrop-blur-md
+                  px-6 py-3 rounded-xl
+                  font-bold text-lg
+                  transition-all duration-200
+                  border-2 border-white/50
+                  shadow-lg hover:shadow-xl
+                  transform hover:-translate-y-1
+                  active:translate-y-0
+                  ${ordering === drink.id ? "animate-pulse" : ""}
+                `}
+              >
+                {ordering === drink.id ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="animate-spin">🌀</span> Ordering...
+                  </span>
+                ) : hasActiveOrder ? (
+                  <span className="flex items-center justify-center gap-2">
+                    ⏳ Pending...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    ORDER
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         ))}
       </div>
