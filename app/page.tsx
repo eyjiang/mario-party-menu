@@ -7,6 +7,7 @@ import Menu from "@/components/Menu";
 import OrderQueue from "@/components/OrderQueue";
 import SecretMessages from "@/components/SecretMessages";
 import PhotoUpload from "@/components/PhotoUpload";
+import GlobalChat from "@/components/GlobalChat";
 import { Order } from "@/lib/types";
 
 export default function Home() {
@@ -87,6 +88,11 @@ export default function Home() {
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
           <SecretMessages />
           <PhotoUpload />
+        </div>
+
+        {/* Global Chat */}
+        <div className="mt-8">
+          <GlobalChat />
         </div>
 
         {/* Footer */}

@@ -307,13 +307,23 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
 
     setIsSpinning(true);
     const targetIndex = Math.floor(Math.random() * drinks.length);
-    // Gun barrel points RIGHT by default (0 deg). Drinks start at TOP (-90 deg).
-    // So to point at drink 0 (top), gun needs to rotate -90 deg.
-    // Drink positions: 0=top(-90), 1=(-45), 2=right(0), 3=(45), 4=bottom(90), etc.
-    const targetAngle = (targetIndex * 45) - 90;
-    const spins = 3 + Math.random() * 2; // 3-5 full rotations
+
+    // Gun barrel points RIGHT at 0 degrees. Drinks are positioned:
+    // Index 0 = top (needs gun at 270° to point up)
+    // Index 1 = top-right (needs gun at 315°)
+    // Index 2 = right (needs gun at 0°)
+    // etc., each drink is 45° apart
+    const targetAngle = ((targetIndex * 45 - 90) % 360 + 360) % 360;
+
+    // Calculate angle difference from current position to target
+    const currentNormalized = ((gunRotation % 360) + 360) % 360;
+    let angleToTarget = targetAngle - currentNormalized;
+    if (angleToTarget <= 0) angleToTarget += 360; // Always spin clockwise at least a bit
+
+    // Add 3-5 FULL spins (integer!) for visual effect
+    const fullSpins = 3 + Math.floor(Math.random() * 3);
     const startRotation = gunRotation;
-    const finalRotation = startRotation + spins * 360 + targetAngle;
+    const finalRotation = startRotation + fullSpins * 360 + angleToTarget;
     const totalDuration = 3000; // 3 seconds
     const startTime = performance.now();
 
@@ -333,7 +343,8 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
       } else {
-        const normalizedRotation = finalRotation % 360;
+        // Normalize to 0-360 range
+        const normalizedRotation = ((finalRotation % 360) + 360) % 360;
         setGunRotation(normalizedRotation);
         setIsSpinning(false);
         // Open the modal for the selected drink
