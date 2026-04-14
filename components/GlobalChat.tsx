@@ -64,25 +64,25 @@ export default function GlobalChat() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-cyan-900/80 to-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-cyan-500/50 shadow-lg shadow-cyan-500/20">
-      <h2 className="text-2xl font-bold font-[family-name:var(--font-press-start)] text-cyan-400 text-sm mb-5">
-        💬 PARTY CHAT
+    <div className="hawaiian-card rounded-2xl p-6">
+      <h2 className="text-xl font-bold font-[family-name:var(--font-playfair)] gold-text mb-5">
+        Talk Story
       </h2>
 
-      <div className="bg-black/30 rounded-xl p-3 mb-4 h-64 overflow-y-auto">
+      <div className="bg-black/20 rounded-xl p-3 mb-4 h-64 overflow-y-auto">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500 text-sm">No messages yet. Say hi!</p>
+            <p className="text-amber-800/40 text-sm font-[family-name:var(--font-cormorant)] italic">No messages yet. Say aloha!</p>
           </div>
         ) : (
           <div className="space-y-2">
             {messages.map((msg) => (
-              <div key={msg.id} className="text-sm">
-                <span className="text-gray-500 text-xs mr-2">
+              <div key={msg.id} className="text-sm font-[family-name:var(--font-cormorant)]">
+                <span className="text-amber-800/40 text-xs mr-2">
                   {formatTime(msg.timestamp)}
                 </span>
-                <span className="text-cyan-400 font-bold">{msg.userName}:</span>{" "}
-                <span className="text-white">{msg.message}</span>
+                <span className="text-amber-400/80 font-bold">{msg.userName}:</span>{" "}
+                <span className="text-amber-100/80">{msg.message}</span>
               </div>
             ))}
             <div ref={messagesEndRef} />
@@ -98,12 +98,12 @@ export default function GlobalChat() {
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
           maxLength={300}
-          className="flex-1 bg-black/50 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+          className="flex-1 bg-black/30 border border-amber-900/30 rounded-lg px-3 py-2 text-sm text-amber-50 placeholder-amber-800/40 focus:outline-none focus:border-amber-600/50 font-[family-name:var(--font-cormorant)]"
         />
         <button
           onClick={sendMessage}
           disabled={sending || !message.trim()}
-          className="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
+          className="bg-amber-800 hover:bg-amber-700 px-4 py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50 font-[family-name:var(--font-cormorant)] text-amber-50"
         >
           {sending ? "..." : "Send"}
         </button>

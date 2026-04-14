@@ -68,84 +68,83 @@ export default function SecretMessages() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-purple-900/80 to-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-purple-500/50 shadow-lg shadow-purple-500/20">
+    <div className="hawaiian-card rounded-2xl p-6">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-2xl font-bold font-[family-name:var(--font-press-start)] text-purple-400 text-sm">
-          💌 SECRET MESSAGES
+        <h2 className="text-xl font-bold font-[family-name:var(--font-playfair)] gold-text">
+          Private Messages
         </h2>
         <button
           onClick={() => setShowCompose(!showCompose)}
-          className="text-xs bg-purple-600 hover:bg-purple-500 px-3 py-1.5 rounded-lg transition-colors font-bold"
+          className="text-xs bg-amber-800 hover:bg-amber-700 px-3 py-1.5 rounded-lg transition-colors font-[family-name:var(--font-cormorant)] text-amber-50"
         >
-          {showCompose ? "✕ Cancel" : "✉️ New"}
+          {showCompose ? "Cancel" : "New"}
         </button>
       </div>
 
       {success && (
-        <div className="mb-4 p-3 bg-green-900/50 border border-green-500/50 rounded-lg text-green-400 text-sm">
-          Message sent successfully!
+        <div className="mb-4 p-3 bg-emerald-900/20 border border-emerald-800/30 rounded-lg text-emerald-300 text-sm font-[family-name:var(--font-cormorant)]">
+          Message sent!
         </div>
       )}
 
       {showCompose && (
-        <div className="mb-5 p-4 bg-black/30 rounded-xl border border-purple-500/30">
+        <div className="mb-5 p-4 bg-black/20 rounded-xl border border-amber-900/20">
           <div className="mb-3">
-            <label className="text-xs text-gray-400 block mb-1">To:</label>
+            <label className="text-xs text-amber-700/50 block mb-1 font-[family-name:var(--font-cormorant)]">To:</label>
             <input
               type="text"
               value={toUserName}
               onChange={(e) => setToUserName(e.target.value)}
               placeholder="Recipient's name"
-              className="w-full bg-black/50 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+              className="w-full bg-black/30 border border-amber-900/30 rounded-lg px-3 py-2 text-sm text-amber-50 placeholder-amber-800/40 focus:outline-none focus:border-amber-600/50 font-[family-name:var(--font-cormorant)]"
             />
           </div>
           <div className="mb-3">
-            <label className="text-xs text-gray-400 block mb-1">Message:</label>
+            <label className="text-xs text-amber-700/50 block mb-1 font-[family-name:var(--font-cormorant)]">Message:</label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Your secret message..."
+              placeholder="Your message..."
               maxLength={500}
               rows={3}
-              className="w-full bg-black/50 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-none"
+              className="w-full bg-black/30 border border-amber-900/30 rounded-lg px-3 py-2 text-sm text-amber-50 placeholder-amber-800/40 focus:outline-none focus:border-amber-600/50 resize-none font-[family-name:var(--font-cormorant)]"
             />
-            <div className="text-xs text-gray-500 text-right">{message.length}/500</div>
+            <div className="text-xs text-amber-800/30 text-right font-[family-name:var(--font-cormorant)]">{message.length}/500</div>
           </div>
           {error && (
-            <div className="mb-3 text-red-400 text-xs">{error}</div>
+            <div className="mb-3 text-red-300 text-xs font-[family-name:var(--font-cormorant)]">{error}</div>
           )}
           <button
             onClick={sendMessage}
             disabled={sending}
-            className="w-full bg-purple-600 hover:bg-purple-500 py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
+            className="w-full bg-amber-800 hover:bg-amber-700 py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50 font-[family-name:var(--font-cormorant)] text-amber-50"
           >
-            {sending ? "Sending..." : "Send Secret Message"}
+            {sending ? "Sending..." : "Send Message"}
           </button>
         </div>
       )}
 
       {messages.length === 0 ? (
         <div className="text-center py-8">
-          <div className="text-4xl mb-3">🤫</div>
-          <p className="text-gray-400 text-sm">No secret messages yet</p>
-          <p className="text-gray-500 text-xs mt-1">Messages sent to your name will appear here</p>
+          <p className="text-amber-700/40 text-sm font-[family-name:var(--font-cormorant)] italic">No messages yet</p>
+          <p className="text-amber-800/30 text-xs mt-1 font-[family-name:var(--font-cormorant)]">Messages sent to you will appear here</p>
         </div>
       ) : (
         <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className="bg-gradient-to-r from-purple-800/30 to-gray-800/30 rounded-xl p-4 border border-purple-600/30"
+              className="bg-black/20 rounded-xl p-4 border border-amber-900/20"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-purple-400 text-sm font-bold">
+                <span className="text-amber-400/70 text-sm font-bold font-[family-name:var(--font-cormorant)]">
                   From: {msg.fromUserName}
                 </span>
-                <span className="text-gray-500 text-xs">
+                <span className="text-amber-800/30 text-xs font-[family-name:var(--font-cormorant)]">
                   {formatTime(msg.timestamp)}
                 </span>
               </div>
-              <p className="text-white text-sm italic">&ldquo;{msg.message}&rdquo;</p>
+              <p className="text-amber-100/80 text-sm italic font-[family-name:var(--font-cormorant)]">&ldquo;{msg.message}&rdquo;</p>
             </div>
           ))}
         </div>

@@ -14,36 +14,12 @@ interface BetCardProps {
   onUpdate: () => void;
 }
 
-// Confetti/money animation component
-const MoneyExplosion = () => {
-  const emojis = ["💵", "💰", "🤑", "💸", "🎉", "✨"];
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {[...Array(20)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute text-2xl animate-bounce"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 0.5}s`,
-            animationDuration: `${0.5 + Math.random() * 0.5}s`,
-          }}
-        >
-          {emojis[Math.floor(Math.random() * emojis.length)]}
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [venmoInput, setVenmoInput] = useState("");
   const [comment, setComment] = useState("");
   const [showTakeForm, setShowTakeForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
   const [comments, setComments] = useState<BetComment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [takeError, setTakeError] = useState("");
@@ -51,16 +27,6 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
   const isCreator = bet.creatorId === userId;
   const isTaker = bet.takerId === userId;
   const canTake = bet.status === "open" && !isCreator;
-  const canVote = bet.status === "locked" && !isCreator && !isTaker;
-  const justResolved = useRef(bet.status === "resolved");
-
-  useEffect(() => {
-    if (bet.status === "resolved" && !justResolved.current) {
-      setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 3000);
-    }
-    justResolved.current = bet.status === "resolved";
-  }, [bet.status]);
 
   const loadComments = async () => {
     if (loadingComments) return;
@@ -159,63 +125,48 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
     }
   };
 
-  const statusColors = {
-    open: "from-green-500/20 to-emerald-600/20 border-green-500",
-    locked: "from-yellow-500/20 to-orange-600/20 border-yellow-500",
-    resolved: "from-purple-500/20 to-pink-600/20 border-purple-500",
-  };
-
-  const statusGlow = {
-    open: "shadow-green-500/30",
-    locked: "shadow-yellow-500/30",
-    resolved: "shadow-purple-500/30",
+  const statusStyles = {
+    open: "border-emerald-800/40",
+    locked: "border-amber-700/40",
+    resolved: "border-amber-900/20",
   };
 
   return (
-    <div
-      className={`
-        relative rounded-xl p-4 border-2 transition-all
-        bg-gradient-to-br ${statusColors[bet.status]}
-        ${bet.status === "open" ? `animate-pulse ${statusGlow.open} shadow-lg` : ""}
-        ${bet.status === "locked" ? `${statusGlow.locked} shadow-lg` : ""}
-        ${bet.status === "resolved" ? statusGlow.resolved : ""}
-      `}
-    >
-      {showCelebration && <MoneyExplosion />}
-
+    <div className={`bg-black/20 rounded-xl p-4 border ${statusStyles[bet.status]} transition-all`}>
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs px-2 py-0.5 rounded-full font-bold uppercase" style={{
-              backgroundColor: bet.status === "open" ? "#22c55e" : bet.status === "locked" ? "#eab308" : "#a855f7",
-              color: "#000",
-            }}>
-              {bet.status === "open" ? "🎯 Open" : bet.status === "locked" ? "🔒 Locked" : "✅ Resolved"}
+            <span className="text-xs px-2 py-0.5 rounded-full font-[family-name:var(--font-cormorant)] font-bold uppercase"
+              style={{
+                backgroundColor: bet.status === "open" ? "rgba(16,185,129,0.2)" : bet.status === "locked" ? "rgba(217,170,0,0.2)" : "rgba(139,90,43,0.2)",
+                color: bet.status === "open" ? "#6ee7b7" : bet.status === "locked" ? "#fcd34d" : "#d4a840",
+              }}>
+              {bet.status === "open" ? "Open" : bet.status === "locked" ? "Locked" : "Resolved"}
             </span>
-            <span className="text-lg font-bold text-white">
-              {bet.amount} {bet.amountType === "dollars" ? "💵" : "🥃"}
+            <span className="text-lg font-bold text-amber-100 font-[family-name:var(--font-cormorant)]">
+              {bet.amount} {bet.amountType === "dollars" ? "$" : "shots"}
             </span>
           </div>
-          <p className="text-white font-medium">{bet.description}</p>
+          <p className="text-amber-100/80 font-[family-name:var(--font-cormorant)]">{bet.description}</p>
         </div>
       </div>
 
       {/* Participants */}
-      <div className="flex items-center gap-4 text-sm mb-3">
+      <div className="flex items-center gap-4 text-sm mb-3 font-[family-name:var(--font-cormorant)]">
         <div className="flex-1">
-          <span className="text-gray-400">Proposer: </span>
-          <span className="text-green-400 font-bold">{bet.creatorName}</span>
+          <span className="text-amber-700/50">Proposer: </span>
+          <span className="text-emerald-400/80 font-bold">{bet.creatorName}</span>
           {bet.creatorVenmo && (
-            <span className="text-blue-400 text-xs ml-1">@{bet.creatorVenmo}</span>
+            <span className="text-amber-500/50 text-xs ml-1">@{bet.creatorVenmo}</span>
           )}
         </div>
         {bet.takerId && (
           <div className="flex-1">
-            <span className="text-gray-400">Challenger: </span>
-            <span className="text-orange-400 font-bold">{bet.takerName}</span>
+            <span className="text-amber-700/50">Challenger: </span>
+            <span className="text-amber-400/80 font-bold">{bet.takerName}</span>
             {bet.takerVenmo && (
-              <span className="text-blue-400 text-xs ml-1">@{bet.takerVenmo}</span>
+              <span className="text-amber-500/50 text-xs ml-1">@{bet.takerVenmo}</span>
             )}
           </div>
         )}
@@ -223,27 +174,27 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
 
       {/* Winner display */}
       {bet.status === "resolved" && bet.winnerName && (
-        <div className="bg-gradient-to-r from-yellow-500/30 to-amber-500/30 rounded-lg p-3 mb-3 text-center">
-          <span className="text-yellow-400 font-bold text-lg">
-            🏆 WINNER: {bet.winnerName} 🏆
+        <div className="bg-amber-900/20 rounded-lg p-3 mb-3 text-center border border-amber-700/20">
+          <span className="text-amber-300 font-bold text-lg font-[family-name:var(--font-cormorant)]">
+            Winner: {bet.winnerName}
           </span>
         </div>
       )}
 
-      {/* Take bet form */}
+      {/* Take bet */}
       {canTake && !showTakeForm && (
         <button
           onClick={() => setShowTakeForm(true)}
-          className="w-full bg-green-600 hover:bg-green-500 py-2 rounded-lg font-bold transition-colors mb-3"
+          className="w-full bg-emerald-800 hover:bg-emerald-700 py-2 rounded-lg font-bold transition-colors mb-3 font-[family-name:var(--font-cormorant)] text-emerald-50"
         >
-          🎲 TAKE THIS BET
+          Take This Bet
         </button>
       )}
 
       {showTakeForm && (
-        <div className="bg-black/30 rounded-lg p-3 mb-3">
+        <div className="bg-black/20 rounded-lg p-3 mb-3">
           {takeError && (
-            <div className="mb-2 text-red-400 text-xs bg-red-900/30 border border-red-500/50 rounded px-2 py-1">
+            <div className="mb-2 text-red-300 text-xs bg-red-900/20 border border-red-800/30 rounded px-2 py-1 font-[family-name:var(--font-cormorant)]">
               {takeError}
             </div>
           )}
@@ -252,19 +203,19 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
             value={venmoInput}
             onChange={(e) => setVenmoInput(e.target.value)}
             placeholder="Your Venmo (optional)"
-            className="w-full bg-black/50 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 mb-2"
+            className="w-full bg-black/30 border border-amber-900/30 rounded-lg px-3 py-2 text-sm text-amber-50 placeholder-amber-800/40 mb-2 font-[family-name:var(--font-cormorant)]"
           />
           <div className="flex gap-2">
             <button
               onClick={takeBet}
               disabled={loading}
-              className="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded-lg font-bold transition-colors disabled:opacity-50"
+              className="flex-1 bg-emerald-800 hover:bg-emerald-700 py-2 rounded-lg font-bold transition-colors disabled:opacity-50 font-[family-name:var(--font-cormorant)] text-emerald-50"
             >
               {loading ? "..." : "Confirm"}
             </button>
             <button
               onClick={() => { setShowTakeForm(false); setTakeError(""); }}
-              className="px-4 bg-gray-600 hover:bg-gray-500 py-2 rounded-lg transition-colors"
+              className="px-4 bg-gray-800 hover:bg-gray-700 py-2 rounded-lg transition-colors font-[family-name:var(--font-cormorant)] text-gray-300"
             >
               Cancel
             </button>
@@ -272,22 +223,22 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
         </div>
       )}
 
-      {/* Voting section */}
+      {/* Voting */}
       {bet.status === "locked" && (
-        <div className="bg-black/30 rounded-lg p-3 mb-3">
-          <p className="text-xs text-gray-400 mb-2 text-center">Who do you think will win?</p>
+        <div className="bg-black/20 rounded-lg p-3 mb-3">
+          <p className="text-xs text-amber-700/50 mb-2 text-center font-[family-name:var(--font-cormorant)]">Who do you think will win?</p>
           <div className="flex gap-2">
             <button
               onClick={() => vote("creator")}
               disabled={loading || isCreator || isTaker}
-              className="flex-1 bg-green-600/50 hover:bg-green-600 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-emerald-900/30 hover:bg-emerald-800/40 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-[family-name:var(--font-cormorant)] text-emerald-200"
             >
               {bet.creatorName} ({bet.votesForCreator})
             </button>
             <button
               onClick={() => vote("taker")}
               disabled={loading || isCreator || isTaker}
-              className="flex-1 bg-orange-600/50 hover:bg-orange-600 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-amber-900/30 hover:bg-amber-800/40 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-[family-name:var(--font-cormorant)] text-amber-200"
             >
               {bet.takerName} ({bet.votesForTaker})
             </button>
@@ -295,22 +246,22 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
         </div>
       )}
 
-      {/* Staff resolve section */}
+      {/* Staff resolve */}
       {isStaff && bet.status === "locked" && (
-        <div className="bg-red-900/30 rounded-lg p-3 mb-3 border border-red-500/50">
-          <p className="text-xs text-red-400 mb-2 font-bold">STAFF: Resolve this bet</p>
+        <div className="bg-red-900/10 rounded-lg p-3 mb-3 border border-red-900/20">
+          <p className="text-xs text-red-300/60 mb-2 font-bold font-[family-name:var(--font-cormorant)]">Staff: Resolve this bet</p>
           <div className="flex gap-2">
             <button
               onClick={() => resolveBet(bet.creatorId)}
               disabled={loading}
-              className="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded-lg font-bold transition-colors disabled:opacity-50"
+              className="flex-1 bg-emerald-800 hover:bg-emerald-700 py-2 rounded-lg font-bold transition-colors disabled:opacity-50 font-[family-name:var(--font-cormorant)] text-emerald-50"
             >
               {bet.creatorName} Wins
             </button>
             <button
               onClick={() => resolveBet(bet.takerId!)}
               disabled={loading}
-              className="flex-1 bg-orange-600 hover:bg-orange-500 py-2 rounded-lg font-bold transition-colors disabled:opacity-50"
+              className="flex-1 bg-amber-800 hover:bg-amber-700 py-2 rounded-lg font-bold transition-colors disabled:opacity-50 font-[family-name:var(--font-cormorant)] text-amber-50"
             >
               {bet.takerName} Wins
             </button>
@@ -321,22 +272,22 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
       {/* Comments toggle */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="text-xs text-gray-400 hover:text-white transition-colors"
+        className="text-xs text-amber-700/40 hover:text-amber-300 transition-colors font-[family-name:var(--font-cormorant)]"
       >
-        {expanded ? "▼ Hide comments" : "▶ Show comments"}
+        {expanded ? "Hide comments" : "Show comments"}
       </button>
 
-      {/* Comments section */}
+      {/* Comments */}
       {expanded && (
-        <div className="mt-3 border-t border-gray-700 pt-3">
+        <div className="mt-3 border-t border-amber-900/20 pt-3">
           <div className="max-h-40 overflow-y-auto space-y-2 mb-3">
             {comments.length === 0 ? (
-              <p className="text-gray-500 text-xs text-center">No comments yet</p>
+              <p className="text-amber-800/30 text-xs text-center font-[family-name:var(--font-cormorant)]">No comments yet</p>
             ) : (
               comments.map((c) => (
-                <div key={c.id} className="text-xs">
-                  <span className="text-cyan-400 font-bold">{c.userName}:</span>{" "}
-                  <span className="text-gray-300">{c.message}</span>
+                <div key={c.id} className="text-xs font-[family-name:var(--font-cormorant)]">
+                  <span className="text-amber-400/70 font-bold">{c.userName}:</span>{" "}
+                  <span className="text-amber-100/70">{c.message}</span>
                 </div>
               ))
             )}
@@ -349,12 +300,12 @@ const BetCard = ({ bet, userId, isStaff, staffKey, onUpdate }: BetCardProps) => 
               onKeyDown={(e) => e.key === "Enter" && addComment()}
               placeholder="Add a comment..."
               maxLength={300}
-              className="flex-1 bg-black/50 border border-gray-600 rounded-lg px-3 py-1 text-xs text-white placeholder-gray-500"
+              className="flex-1 bg-black/30 border border-amber-900/30 rounded-lg px-3 py-1 text-xs text-amber-50 placeholder-amber-800/40 font-[family-name:var(--font-cormorant)]"
             />
             <button
               onClick={addComment}
               disabled={loading || !comment.trim()}
-              className="bg-cyan-600 hover:bg-cyan-500 px-3 py-1 rounded-lg text-xs font-bold transition-colors disabled:opacity-50"
+              className="bg-amber-800 hover:bg-amber-700 px-3 py-1 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 font-[family-name:var(--font-cormorant)] text-amber-50"
             >
               Send
             </button>
@@ -446,24 +397,24 @@ export default function BettingSection({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-6">
-      {/* Active Bets Section */}
-      <div className="bg-gradient-to-b from-amber-900/80 to-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-amber-500/50 shadow-lg shadow-amber-500/20">
+      {/* Active Bets */}
+      <div className="hawaiian-card rounded-2xl p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-2xl font-bold font-[family-name:var(--font-press-start)] text-amber-400 text-sm">
-            🎰 BETTING ARENA
+          <h2 className="text-xl font-bold font-[family-name:var(--font-playfair)] gold-text">
+            Wagers
           </h2>
           <div className="flex items-center gap-2">
             {!isStaff && !showStaffInput && (
               <button
                 onClick={() => setShowStaffInput(true)}
-                className="text-xs text-gray-400 hover:text-yellow-400 transition-colors"
+                className="text-xs text-amber-700/40 hover:text-amber-400 transition-colors font-[family-name:var(--font-cormorant)]"
               >
-                🔐 Staff
+                Staff
               </button>
             )}
             {isStaff && (
-              <span className="text-xs text-green-400 font-bold bg-green-900/50 px-2 py-1 rounded">
-                ✓ STAFF
+              <span className="text-xs text-emerald-400 font-[family-name:var(--font-cormorant)] bg-emerald-900/30 px-2 py-1 rounded">
+                Staff
               </span>
             )}
           </div>
@@ -477,68 +428,53 @@ export default function BettingSection({ userId }: { userId: string }) {
               onChange={(e) => setStaffKey(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && enableStaffMode()}
               placeholder="Staff passphrase"
-              className="flex-1 bg-black/50 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500"
+              className="flex-1 bg-black/30 border border-amber-900/30 rounded-lg px-3 py-2 text-sm text-amber-50 placeholder-amber-800/40 font-[family-name:var(--font-cormorant)]"
             />
-            <button onClick={enableStaffMode} className="bg-green-600 hover:bg-green-500 px-3 py-2 rounded-lg text-sm font-bold">
-              ✓
+            <button onClick={enableStaffMode} className="bg-emerald-800 hover:bg-emerald-700 px-3 py-2 rounded-lg text-sm font-bold text-emerald-50">
+              Go
             </button>
-            <button onClick={() => setShowStaffInput(false)} className="bg-gray-600 hover:bg-gray-500 px-3 py-2 rounded-lg text-sm">
-              ✕
+            <button onClick={() => setShowStaffInput(false)} className="bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm text-gray-300">
+              &times;
             </button>
           </div>
         )}
 
         {openBets.length === 0 ? (
           <div className="text-center py-8">
-            <div className="text-4xl mb-3">🎲</div>
-            <p className="text-gray-400 text-sm">No active bets</p>
-            <p className="text-gray-500 text-xs mt-1">Propose one below!</p>
+            <p className="text-amber-700/40 text-sm font-[family-name:var(--font-cormorant)] italic">No active wagers</p>
+            <p className="text-amber-800/30 text-xs mt-1 font-[family-name:var(--font-cormorant)]">Propose one below</p>
           </div>
         ) : (
           <div className="space-y-4">
             {openBets.map((bet) => (
-              <BetCard
-                key={bet.id}
-                bet={bet}
-                userId={userId}
-                isStaff={isStaff}
-                staffKey={staffKey}
-                onUpdate={mutate}
-              />
+              <BetCard key={bet.id} bet={bet} userId={userId} isStaff={isStaff} staffKey={staffKey} onUpdate={mutate} />
             ))}
           </div>
         )}
       </div>
 
-      {/* Resolved Bets Section */}
+      {/* Resolved */}
       {resolvedBets.length > 0 && (
-        <div className="bg-gradient-to-b from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-gray-500/50">
-          <h3 className="text-lg font-bold font-[family-name:var(--font-press-start)] text-gray-400 text-xs mb-4">
-            📜 COMPLETED BETS
+        <div className="hawaiian-card rounded-2xl p-6 opacity-75">
+          <h3 className="text-lg font-bold font-[family-name:var(--font-playfair)] text-amber-600/50 mb-4">
+            Completed Wagers
           </h3>
-          <div className="space-y-3 opacity-75">
+          <div className="space-y-3">
             {resolvedBets.map((bet) => (
-              <BetCard
-                key={bet.id}
-                bet={bet}
-                userId={userId}
-                isStaff={isStaff}
-                staffKey={staffKey}
-                onUpdate={mutate}
-              />
+              <BetCard key={bet.id} bet={bet} userId={userId} isStaff={isStaff} staffKey={staffKey} onUpdate={mutate} />
             ))}
           </div>
         </div>
       )}
 
-      {/* Create Bet Form */}
-      <div className="bg-gradient-to-b from-green-900/80 to-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-green-500/50 shadow-lg shadow-green-500/20">
-        <h3 className="text-lg font-bold font-[family-name:var(--font-press-start)] text-green-400 text-xs mb-4">
-          💡 PROPOSE A BET
+      {/* Create Bet */}
+      <div className="hawaiian-card rounded-2xl p-6">
+        <h3 className="text-lg font-bold font-[family-name:var(--font-playfair)] gold-text mb-4">
+          Propose a Wager
         </h3>
 
         {error && (
-          <div className="mb-4 text-red-400 text-sm bg-red-900/30 border border-red-500/50 rounded-lg px-3 py-2">
+          <div className="mb-4 text-red-300 text-sm bg-red-900/20 border border-red-800/30 rounded-lg px-3 py-2 font-[family-name:var(--font-cormorant)]">
             {error}
           </div>
         )}
@@ -547,10 +483,10 @@ export default function BettingSection({ userId }: { userId: string }) {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="What's the bet? (e.g., 'I bet Mario will win the next minigame')"
+            placeholder="What's the wager?"
             maxLength={500}
             rows={2}
-            className="w-full bg-black/50 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 resize-none"
+            className="w-full bg-black/30 border border-amber-900/30 rounded-lg px-3 py-2 text-sm text-amber-50 placeholder-amber-800/40 resize-none font-[family-name:var(--font-cormorant)]"
           />
 
           <div className="flex gap-3">
@@ -561,21 +497,21 @@ export default function BettingSection({ userId }: { userId: string }) {
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Amount"
                 min="1"
-                className="w-full bg-black/50 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500"
+                className="w-full bg-black/30 border border-amber-900/30 rounded-lg px-3 py-2 text-sm text-amber-50 placeholder-amber-800/40 font-[family-name:var(--font-cormorant)]"
               />
             </div>
-            <div className="flex bg-black/50 rounded-lg border border-gray-600 overflow-hidden">
+            <div className="flex bg-black/30 rounded-lg border border-amber-900/30 overflow-hidden">
               <button
                 onClick={() => setAmountType("dollars")}
-                className={`px-4 py-2 text-sm transition-colors ${amountType === "dollars" ? "bg-green-600 text-white" : "text-gray-400 hover:text-white"}`}
+                className={`px-4 py-2 text-sm transition-colors font-[family-name:var(--font-cormorant)] ${amountType === "dollars" ? "bg-amber-800 text-amber-50" : "text-amber-700/50 hover:text-amber-200"}`}
               >
-                💵 $
+                $
               </button>
               <button
                 onClick={() => setAmountType("shots")}
-                className={`px-4 py-2 text-sm transition-colors ${amountType === "shots" ? "bg-orange-600 text-white" : "text-gray-400 hover:text-white"}`}
+                className={`px-4 py-2 text-sm transition-colors font-[family-name:var(--font-cormorant)] ${amountType === "shots" ? "bg-amber-800 text-amber-50" : "text-amber-700/50 hover:text-amber-200"}`}
               >
-                🥃 Shots
+                Shots
               </button>
             </div>
           </div>
@@ -585,15 +521,15 @@ export default function BettingSection({ userId }: { userId: string }) {
             value={venmo}
             onChange={(e) => setVenmo(e.target.value)}
             placeholder="Your Venmo username (optional)"
-            className="w-full bg-black/50 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500"
+            className="w-full bg-black/30 border border-amber-900/30 rounded-lg px-3 py-2 text-sm text-amber-50 placeholder-amber-800/40 font-[family-name:var(--font-cormorant)]"
           />
 
           <button
             onClick={createBet}
             disabled={creating || !description.trim() || !amount}
-            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 py-3 rounded-lg font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-amber-800 hover:bg-amber-700 py-3 rounded-lg font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-[family-name:var(--font-cormorant)] text-amber-50 tracking-wider uppercase"
           >
-            {creating ? "Creating..." : "🎯 PROPOSE BET"}
+            {creating ? "Creating..." : "Propose Wager"}
           </button>
         </div>
       </div>

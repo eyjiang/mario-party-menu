@@ -77,13 +77,13 @@ export default function PhotoUpload() {
 
   return (
     <>
-      <div className="bg-gradient-to-b from-pink-900/80 to-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-pink-500/50 shadow-lg shadow-pink-500/20">
+      <div className="hawaiian-card rounded-2xl p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-2xl font-bold font-[family-name:var(--font-press-start)] text-pink-400 text-sm">
-            📸 PARTY PICS
+          <h2 className="text-xl font-bold font-[family-name:var(--font-playfair)] gold-text">
+            Photos
           </h2>
-          <label className="text-xs bg-pink-600 hover:bg-pink-500 px-3 py-1.5 rounded-lg transition-colors font-bold cursor-pointer">
-            {uploading ? "..." : "📷 Upload"}
+          <label className="text-xs bg-amber-800 hover:bg-amber-700 px-3 py-1.5 rounded-lg transition-colors font-[family-name:var(--font-cormorant)] cursor-pointer text-amber-50">
+            {uploading ? "..." : "Upload"}
             <input
               ref={fileInputRef}
               type="file"
@@ -96,16 +96,15 @@ export default function PhotoUpload() {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-900/50 border border-red-500/50 rounded-lg text-red-400 text-sm">
+          <div className="mb-4 p-3 bg-red-900/20 border border-red-800/30 rounded-lg text-red-300 text-sm font-[family-name:var(--font-cormorant)]">
             {error}
           </div>
         )}
 
         {photos.length === 0 ? (
           <div className="text-center py-8">
-            <div className="text-4xl mb-3">📷</div>
-            <p className="text-gray-400 text-sm">No photos yet</p>
-            <p className="text-gray-500 text-xs mt-1">Upload a pic from the party!</p>
+            <p className="text-amber-700/40 text-sm font-[family-name:var(--font-cormorant)] italic">No photos yet</p>
+            <p className="text-amber-800/30 text-xs mt-1 font-[family-name:var(--font-cormorant)]">Share a moment!</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-1">
@@ -113,7 +112,7 @@ export default function PhotoUpload() {
               <div
                 key={photo.id}
                 onClick={() => setSelectedPhoto(photo)}
-                className="relative aspect-square rounded-xl overflow-hidden border-2 border-pink-500/30 hover:border-pink-500 transition-all cursor-pointer group"
+                className="relative aspect-square rounded-xl overflow-hidden border border-amber-900/20 hover:border-amber-600/40 transition-all cursor-pointer group"
               >
                 <img
                   src={photo.dataUrl}
@@ -122,8 +121,8 @@ export default function PhotoUpload() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
                   <div>
-                    <p className="text-white text-xs font-bold truncate">{photo.userName}</p>
-                    <p className="text-gray-400 text-xs">{formatTime(photo.timestamp)}</p>
+                    <p className="text-amber-50 text-xs font-bold truncate font-[family-name:var(--font-cormorant)]">{photo.userName}</p>
+                    <p className="text-amber-300/60 text-xs font-[family-name:var(--font-cormorant)]">{formatTime(photo.timestamp)}</p>
                   </div>
                 </div>
               </div>
@@ -141,18 +140,18 @@ export default function PhotoUpload() {
           <div className="max-w-4xl max-h-[90vh] relative">
             <button
               onClick={() => setSelectedPhoto(null)}
-              className="absolute -top-10 right-0 text-white text-2xl hover:text-pink-400 transition-colors"
+              className="absolute -top-10 right-0 text-amber-200 text-2xl hover:text-amber-50 transition-colors"
             >
-              ✕
+              &times;
             </button>
             <img
               src={selectedPhoto.dataUrl}
               alt={`Photo by ${selectedPhoto.userName}`}
-              className="max-w-full max-h-[80vh] object-contain rounded-xl border-4 border-pink-500/50"
+              className="max-w-full max-h-[80vh] object-contain rounded-xl border border-amber-900/30"
             />
             <div className="text-center mt-4">
-              <p className="text-white font-bold">{selectedPhoto.userName}</p>
-              <p className="text-gray-400 text-sm">{formatTime(selectedPhoto.timestamp)}</p>
+              <p className="text-amber-100 font-bold font-[family-name:var(--font-cormorant)]">{selectedPhoto.userName}</p>
+              <p className="text-amber-700/50 text-sm font-[family-name:var(--font-cormorant)]">{formatTime(selectedPhoto.timestamp)}</p>
             </div>
           </div>
         </div>

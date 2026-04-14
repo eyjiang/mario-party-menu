@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f0f1a;
-  --foreground: #f3f4f6;
+  --background: #0a1a0f;
+  --foreground: #f5f0e8;
 }
 
 @theme inline {
@@ -15,27 +15,21 @@
 body {
   background: var(--background);
   background-image:
-    radial-gradient(ellipse at top, rgba(139, 69, 255, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom, rgba(255, 0, 100, 0.1) 0%, transparent 50%),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.03) 2px,
-      rgba(255, 255, 255, 0.03) 4px
-    );
+    radial-gradient(ellipse at top left, rgba(34, 90, 50, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(20, 70, 35, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at center, rgba(139, 90, 43, 0.05) 0%, transparent 70%);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   min-height: 100vh;
 }
 
 /* Custom animations */
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
+@keyframes sway {
+  0%, 100% {
+    transform: rotate(-2deg);
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    transform: rotate(2deg);
   }
 }
 
@@ -44,58 +38,84 @@ body {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
 }
 
-@keyframes rainbow {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
 }
 
-@keyframes shake {
+@keyframes wave {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  50% { transform: translateX(5px); }
 }
 
-.animate-spin-slow {
-  animation: spin-slow 3s linear infinite;
+.animate-sway {
+  animation: sway 4s ease-in-out infinite;
 }
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
-.animate-rainbow {
-  animation: rainbow 5s linear infinite;
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
 }
 
-.animate-shake {
-  animation: shake 0.5s ease-in-out infinite;
+.animate-wave {
+  animation: wave 2s ease-in-out infinite;
 }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff);
-  border-radius: 6px;
+  background: linear-gradient(180deg, #2d5a27, #8b5a2b, #2d5a27);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #ff5252, #ffc107, #4caf50, #2196f3);
+  background: linear-gradient(180deg, #3a7233, #a0703a, #3a7233);
 }
 
 /* Selection styling */
 ::selection {
-  background: rgba(255, 215, 0, 0.5);
-  color: #000;
+  background: rgba(218, 165, 32, 0.4);
+  color: #fff;
+}
+
+/* Hawaiian card style */
+.hawaiian-card {
+  background: linear-gradient(145deg, rgba(15, 35, 20, 0.9), rgba(10, 25, 15, 0.95));
+  border: 1px solid rgba(139, 90, 43, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.hawaiian-card:hover {
+  border-color: rgba(218, 165, 32, 0.5);
+  box-shadow: 0 0 20px rgba(218, 165, 32, 0.1);
+}
+
+/* Gold text effect */
+.gold-text {
+  background: linear-gradient(135deg, #d4a840, #f0d080, #d4a840);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Tropical divider */
+.tropical-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 90, 43, 0.5), rgba(218, 165, 32, 0.3), rgba(139, 90, 43, 0.5), transparent);
 }

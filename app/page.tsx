@@ -45,30 +45,42 @@ export default function Home() {
   if (!userId) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-4xl animate-spin">🍄</div>
+        <div className="text-4xl animate-float opacity-60">~</div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen">
-      {/* Floating decorations */}
-      <div className="fixed top-10 left-10 text-6xl opacity-20 animate-float pointer-events-none">🍄</div>
-      <div className="fixed top-20 right-20 text-5xl opacity-20 animate-float pointer-events-none" style={{ animationDelay: "1s" }}>⭐</div>
-      <div className="fixed bottom-20 left-20 text-5xl opacity-20 animate-float pointer-events-none" style={{ animationDelay: "2s" }}>🎮</div>
-      <div className="fixed bottom-10 right-10 text-6xl opacity-20 animate-float pointer-events-none" style={{ animationDelay: "0.5s" }}>🎲</div>
+      {/* Tropical leaf decorations */}
+      <div className="fixed top-0 left-0 text-6xl opacity-10 animate-sway pointer-events-none select-none" style={{ color: '#2d5a27' }}>
+        <svg width="120" height="120" viewBox="0 0 100 100" fill="currentColor" opacity="0.3">
+          <path d="M10 90 Q 30 60 50 50 Q 30 40 10 10 Q 35 30 50 50 Q 65 30 90 10 Q 70 40 50 50 Q 70 60 90 90 Q 65 70 50 50 Q 35 70 10 90Z"/>
+        </svg>
+      </div>
+      <div className="fixed top-10 right-0 text-5xl opacity-10 animate-sway pointer-events-none select-none" style={{ animationDelay: "1.5s", color: '#1a4a20' }}>
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="currentColor" opacity="0.3">
+          <path d="M50 5 Q 70 30 80 50 Q 70 70 50 95 Q 30 70 20 50 Q 30 30 50 5Z"/>
+        </svg>
+      </div>
+      <div className="fixed bottom-0 right-10 text-5xl opacity-10 animate-sway pointer-events-none select-none" style={{ animationDelay: "2.5s", color: '#2d5a27' }}>
+        <svg width="110" height="110" viewBox="0 0 100 100" fill="currentColor" opacity="0.3">
+          <path d="M10 90 Q 30 60 50 50 Q 30 40 10 10 Q 35 30 50 50 Q 65 30 90 10 Q 70 40 50 50 Q 70 60 90 90 Q 65 70 50 50 Q 35 70 10 90Z"/>
+        </svg>
+      </div>
 
       <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
         {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 font-[family-name:var(--font-press-start)] leading-tight">
-            <span className="text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]">MARIO</span>{" "}
-            <span className="text-green-500 drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]">PARTY</span>
-            <br />
-            <span className="text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.7)] animate-pulse">DRINKS</span>
+        <div className="text-center mb-12">
+          <p className="text-sm tracking-[0.3em] uppercase text-amber-600/80 font-[family-name:var(--font-cormorant)] font-light mb-2">
+            Authentic Island Cuisine
+          </p>
+          <h1 className="text-6xl md:text-8xl font-bold mb-3 font-[family-name:var(--font-playfair)]">
+            <span className="gold-text">Aloha Kitchen</span>
           </h1>
-          <p className="text-xl text-gray-400 font-[family-name:var(--font-bangers)] tracking-wider">
-            🎉 Order your drink and watch it appear in the queue! 🎉
+          <div className="tropical-divider w-48 mx-auto mb-4" />
+          <p className="text-lg text-amber-700/60 font-[family-name:var(--font-cormorant)] font-light italic tracking-wide">
+            Fresh from the islands, made with aloha
           </p>
         </div>
 
@@ -102,9 +114,10 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-12 text-gray-500 text-sm">
-          <p className="font-[family-name:var(--font-press-start)] text-xs">
-            🎮 PRESS START TO DRINK 🎮
+        <div className="text-center mt-16 mb-8">
+          <div className="tropical-divider w-32 mx-auto mb-4" />
+          <p className="font-[family-name:var(--font-cormorant)] text-amber-700/40 text-sm tracking-widest uppercase">
+            Mahalo for dining with us
           </p>
         </div>
       </div>
