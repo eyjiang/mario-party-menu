@@ -57,20 +57,20 @@ export default function NameInput() {
 
   if (loading && !isEditing) {
     return (
-      <div className="hawaiian-card rounded-2xl p-4 mb-8">
-        <span className="text-amber-700/50 animate-pulse font-[family-name:var(--font-cormorant)]">Loading...</span>
+      <div className="mb-6 py-3">
+        <span className="text-amber-800/30 animate-pulse font-[family-name:var(--font-cormorant)] text-sm">Loading...</span>
       </div>
     );
   }
 
   if (isEditing) {
     return (
-      <div className="hawaiian-card rounded-2xl p-6 mb-8">
-        <label className="block text-lg font-[family-name:var(--font-cormorant)] font-semibold mb-3 text-amber-200 tracking-wide">
-          Enter Your Name
+      <div className="mb-8 border-b border-amber-900/15 pb-8">
+        <label className="block text-sm font-[family-name:var(--font-cormorant)] font-light mb-3 text-amber-500/50 tracking-wide uppercase">
+          Your Name
         </label>
         {error && (
-          <div className="mb-3 text-red-300 text-sm bg-red-900/20 border border-red-800/30 rounded-lg px-3 py-2 font-[family-name:var(--font-cormorant)]">
+          <div className="mb-3 text-red-400/60 text-sm font-[family-name:var(--font-cormorant)]">
             {error}
           </div>
         )}
@@ -80,34 +80,31 @@ export default function NameInput() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && saveName()}
-            placeholder="Your name"
-            className="flex-1 bg-black/30 border border-amber-900/30 rounded-xl px-4 py-3 text-amber-50 text-lg placeholder-amber-800/40 focus:outline-none focus:border-amber-600/50 transition-all font-[family-name:var(--font-cormorant)]"
+            placeholder="Enter your name"
+            className="flex-1 bg-transparent border-b border-amber-800/20 px-1 py-2 text-amber-100/80 text-lg placeholder-amber-800/20 focus:outline-none focus:border-amber-600/40 transition-colors font-[family-name:var(--font-cormorant)]"
             maxLength={30}
             autoFocus
           />
           <button
             onClick={saveName}
             disabled={!name.trim() || loading}
-            className="bg-amber-800 hover:bg-amber-700 disabled:bg-gray-800 disabled:cursor-not-allowed px-6 py-3 rounded-xl font-[family-name:var(--font-cormorant)] font-bold text-lg tracking-wider transition-all text-amber-50"
+            className="text-amber-500/50 hover:text-amber-400/70 disabled:text-amber-900/20 disabled:cursor-not-allowed font-[family-name:var(--font-cormorant)] text-sm tracking-widest uppercase transition-colors px-2"
           >
-            {loading ? "..." : "Enter"}
+            {loading ? "..." : "Continue"}
           </button>
         </div>
-        <p className="mt-2 text-xs text-amber-800/40 font-[family-name:var(--font-cormorant)]">
-          Names are unique &mdash; pick one that&apos;s not taken
-        </p>
       </div>
     );
   }
 
   return (
-    <div className="hawaiian-card rounded-2xl p-4 mb-8 flex items-center justify-between">
-      <span className="text-lg font-[family-name:var(--font-cormorant)] tracking-wide text-amber-200/80">
-        Welcome, <strong className="text-amber-100 text-xl">{savedName}</strong>
+    <div className="mb-8 flex items-baseline justify-between border-b border-amber-900/10 pb-6">
+      <span className="font-[family-name:var(--font-cormorant)] text-amber-600/40 text-sm tracking-wide">
+        Welcome, <span className="text-amber-200/70 text-base">{savedName}</span>
       </span>
       <button
         onClick={() => setIsEditing(true)}
-        className="text-sm text-amber-600/60 hover:text-amber-300 transition-colors font-[family-name:var(--font-cormorant)] bg-black/20 px-3 py-1 rounded-lg hover:bg-black/30"
+        className="text-xs text-amber-700/25 hover:text-amber-500/50 transition-colors font-[family-name:var(--font-cormorant)] tracking-wider uppercase"
       >
         Change
       </button>

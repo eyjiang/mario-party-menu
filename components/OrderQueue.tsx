@@ -98,22 +98,22 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
   };
 
   return (
-    <div className="hawaiian-card rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="text-xl font-bold font-[family-name:var(--font-playfair)] gold-text">
-          Order Queue
+    <div>
+      <div className="flex items-baseline justify-between mb-6">
+        <h2 className="text-xl font-[family-name:var(--font-playfair)] font-semibold gold-text">
+          Your Order
         </h2>
         {!isStaff && !showStaffInput && (
           <button
             onClick={() => setShowStaffInput(true)}
-            className="text-xs text-amber-700/40 hover:text-amber-400 transition-colors font-[family-name:var(--font-cormorant)]"
+            className="text-[10px] text-amber-800/25 hover:text-amber-600/40 transition-colors font-[family-name:var(--font-cormorant)] tracking-wider uppercase"
           >
             Staff
           </button>
         )}
         {isStaff && (
-          <span className="text-xs text-emerald-400 font-[family-name:var(--font-cormorant)] bg-emerald-900/30 px-2 py-1 rounded">
-            Staff
+          <span className="text-[10px] text-emerald-600/50 font-[family-name:var(--font-cormorant)] tracking-wider uppercase">
+            Staff Mode
           </span>
         )}
       </div>
@@ -126,90 +126,77 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
             onChange={(e) => setStaffKey(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && enableStaffMode()}
             placeholder="Passphrase"
-            className="flex-1 bg-black/30 border border-amber-900/30 rounded-lg px-3 py-2 text-sm text-amber-50 placeholder-amber-800/40 focus:outline-none focus:border-amber-600/50"
+            className="flex-1 bg-transparent border-b border-amber-900/20 px-1 py-2 text-sm text-amber-50/70 placeholder-amber-800/25 focus:outline-none focus:border-amber-700/40 font-[family-name:var(--font-cormorant)]"
           />
-          <button
-            onClick={enableStaffMode}
-            className="bg-emerald-800 hover:bg-emerald-700 px-3 py-2 rounded-lg text-sm font-bold transition-colors text-emerald-50"
-          >
-            Go
-          </button>
-          <button
-            onClick={() => setShowStaffInput(false)}
-            className="bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm transition-colors text-gray-300"
-          >
-            &times;
-          </button>
+          <button onClick={enableStaffMode} className="text-amber-500/50 hover:text-amber-400 text-xs font-[family-name:var(--font-cormorant)] uppercase tracking-wider">Go</button>
+          <button onClick={() => setShowStaffInput(false)} className="text-amber-800/30 hover:text-amber-500/50 text-sm">&times;</button>
         </div>
       )}
 
       {orders.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-amber-700/40 text-sm font-[family-name:var(--font-cormorant)] italic">No orders yet</p>
-          <p className="text-amber-800/30 text-xs mt-1 font-[family-name:var(--font-cormorant)]">Be the first to order</p>
+        <div className="py-12 text-center">
+          <p className="text-amber-800/25 text-sm font-[family-name:var(--font-cormorant)] italic">
+            No orders yet
+          </p>
         </div>
       ) : (
-        <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+        <div className="space-y-4 max-h-[600px] overflow-y-auto">
           {orders.map((order, index) => (
             <div
               key={order.id}
               className={`
-                relative overflow-hidden
-                bg-black/20 rounded-xl p-4
-                border border-amber-900/20
-                ${order.userId === userId ? "ring-1 ring-amber-600/30" : ""}
-                transition-all hover:border-amber-700/30
+                py-4 border-b border-amber-900/10 last:border-0
+                ${order.userId === userId ? "pl-3 border-l border-l-amber-700/20" : ""}
               `}
             >
               <div className="flex items-start gap-3">
-                <div className="text-lg font-bold text-amber-600/60 font-[family-name:var(--font-cormorant)] w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-amber-900/20">
+                <span className="text-xs text-amber-700/30 font-[family-name:var(--font-cormorant)] mt-1 w-5 flex-shrink-0">
                   {index + 1}
-                </div>
+                </span>
                 <div className="flex-1 min-w-0">
-                  <div className="font-[family-name:var(--font-playfair)] font-bold text-amber-100 text-sm">
+                  <div className="font-[family-name:var(--font-playfair)] text-amber-100/80 text-sm">
                     {order.drinkName}
                     {order.isNonAlcoholic && (
-                      <span className="ml-2 text-xs bg-amber-800/30 text-amber-300 px-2 py-0.5 rounded-full font-[family-name:var(--font-cormorant)]">Keiki</span>
+                      <span className="ml-2 text-[10px] text-amber-500/40 font-[family-name:var(--font-cormorant)] uppercase tracking-wider">Keiki</span>
                     )}
                   </div>
-                  <div className="text-sm text-amber-700/50 font-[family-name:var(--font-cormorant)]">
-                    for <span className="text-amber-400/70">{order.userName}</span>
+                  <div className="text-xs text-amber-700/30 font-[family-name:var(--font-cormorant)] mt-0.5">
+                    {order.userName}
                   </div>
                   {order.comment && (
-                    <div className="mt-2 text-xs text-amber-200/60 bg-black/20 rounded-lg p-2 italic font-[family-name:var(--font-cormorant)]">
+                    <div className="mt-1.5 text-xs text-amber-400/30 italic font-[family-name:var(--font-cormorant)]">
                       &ldquo;{order.comment}&rdquo;
                     </div>
                   )}
                 </div>
 
-                {/* Vote buttons */}
-                <div className="flex flex-col items-center gap-1">
+                <div className="flex flex-col items-center gap-0.5">
                   <button
                     onClick={() => vote(order.id, "up")}
                     disabled={voting === order.id}
-                    className="text-amber-500/60 hover:text-amber-300 p-1 rounded transition-all disabled:opacity-50 text-xs"
+                    className="text-amber-700/25 hover:text-amber-400/60 p-0.5 transition-all disabled:opacity-50 text-[10px]"
                   >
                     &#9650;
                   </button>
-                  <span className="text-xs font-bold text-amber-200/70 font-[family-name:var(--font-cormorant)]">
+                  <span className="text-[10px] text-amber-500/40 font-[family-name:var(--font-cormorant)]">
                     {(order.upvotes || 0) - (order.downvotes || 0)}
                   </span>
                   <button
                     onClick={() => vote(order.id, "down")}
                     disabled={voting === order.id}
-                    className="text-amber-500/60 hover:text-amber-300 p-1 rounded transition-all disabled:opacity-50 text-xs"
+                    className="text-amber-700/25 hover:text-amber-400/60 p-0.5 transition-all disabled:opacity-50 text-[10px]"
                   >
                     &#9660;
                   </button>
                 </div>
               </div>
 
-              <div className="flex gap-2 mt-3">
+              <div className="flex gap-2 mt-2 ml-8">
                 {order.userId === userId && (
                   <button
                     onClick={() => cancelOrder(order.id)}
                     disabled={canceling === order.id}
-                    className="flex-1 text-red-400/70 hover:text-red-300 text-xs px-3 py-2 rounded-lg transition-all disabled:opacity-50 border border-red-900/30 font-[family-name:var(--font-cormorant)]"
+                    className="text-red-500/30 hover:text-red-400/50 text-[10px] font-[family-name:var(--font-cormorant)] uppercase tracking-wider transition-colors"
                   >
                     {canceling === order.id ? "..." : "Cancel"}
                   </button>
@@ -218,7 +205,7 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
                   <button
                     onClick={() => completeOrder(order.id)}
                     disabled={completing === order.id}
-                    className="flex-1 bg-emerald-800 hover:bg-emerald-700 text-xs px-3 py-2 rounded-lg transition-colors disabled:opacity-50 font-bold font-[family-name:var(--font-cormorant)] text-emerald-50"
+                    className="text-emerald-500/40 hover:text-emerald-400/60 text-[10px] font-[family-name:var(--font-cormorant)] uppercase tracking-wider transition-colors"
                   >
                     {completing === order.id ? "..." : "Complete"}
                   </button>
@@ -229,8 +216,8 @@ export default function OrderQueue({ userId, onOrdersChange }: OrderQueueProps) 
         </div>
       )}
 
-      <div className="mt-5 pt-4 border-t border-amber-900/20 text-center">
-        <p className="text-sm text-amber-800/40 font-[family-name:var(--font-cormorant)]">
+      <div className="mt-4 pt-3 border-t border-amber-900/10">
+        <p className="text-[10px] text-amber-800/20 font-[family-name:var(--font-cormorant)] tracking-wider uppercase">
           {orders.length} order{orders.length !== 1 ? "s" : ""} in queue
         </p>
       </div>
