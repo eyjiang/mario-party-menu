@@ -102,12 +102,12 @@ export default function Home() {
         {/* Two-column menu layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2 mt-8">
           <Menu
-            category="drinks"
+            category="food"
             onOrderPlaced={handleOrderPlaced}
             hasActiveOrder={hasActiveOrder}
           />
           <Menu
-            category="food"
+            category="drinks"
             onOrderPlaced={handleOrderPlaced}
             hasActiveOrder={hasActiveOrder}
           />

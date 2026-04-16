@@ -1,6 +1,43 @@
 import { Drink } from "./types";
 
 export const drinks: Drink[] = [
+  // ── Food ──
+  {
+    id: "beef-kimbap",
+    name: "Beef Kimbap",
+    category: "food",
+    ingredients: ["Beef", "Daikon", "Egg", "Spinach", "Sesame Oil"],
+    allergens: ["Egg", "Sesame"],
+    notes: "Can make meatless and/or add chili oil",
+    options: [
+      { id: "meatless", label: "Make meatless" },
+      { id: "chili-oil", label: "Add chili oil" },
+    ],
+    image: "",
+    hasNaOption: false,
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+  },
+  {
+    id: "hawaiian-roll-sandwiches",
+    name: "Hawaiian Roll Sandwiches",
+    category: "food",
+    ingredients: ["Ham", "Swiss Cheese", "Mayo", "Garlic Butter"],
+    allergens: ["Dairy"],
+    image: "/images/hawaiian-rolls.jpg",
+    hasNaOption: false,
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+  },
+  {
+    id: "banana-cake",
+    name: "Banana Cake",
+    category: "food",
+    ingredients: ["Brown Butter Frosting", "Salted Caramel", "Caramelized Banana"],
+    allergens: ["Dairy"],
+    image: "/images/banana-cake.jpg",
+    hasNaOption: false,
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+  },
+
   // ── Drinks ──
   {
     id: "clarified-smokey-pineapple-rum",
@@ -38,17 +75,6 @@ export const drinks: Drink[] = [
     color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
   {
-    id: "lychee-guava-fizz",
-    name: "Lychee Guava Fizz",
-    category: "drinks",
-    ingredients: ["Lychee Juice", "Guava Juice", "Lemon Juice", "Soda Water"],
-    allergens: [],
-    isNonAlcoholic: true,
-    image: "",
-    hasNaOption: false,
-    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
-  },
-  {
     id: "pandan-coconut-fizz",
     name: "Pandan Coconut Fizz",
     category: "drinks",
@@ -62,40 +88,14 @@ export const drinks: Drink[] = [
     hasNaOption: false,
     color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
-
-  // ── Food ──
   {
-    id: "beef-kimbap",
-    name: "Beef Kimbap",
-    category: "food",
-    ingredients: ["Beef", "Daikon", "Egg", "Spinach", "Sesame Oil"],
-    allergens: ["Egg", "Sesame"],
-    notes: "Can make meatless and/or add chili oil",
-    options: [
-      { id: "meatless", label: "Make meatless" },
-      { id: "chili-oil", label: "Add chili oil" },
-    ],
+    id: "lychee-guava-fizz",
+    name: "Lychee Guava Fizz",
+    category: "drinks",
+    ingredients: ["Lychee Juice", "Guava Juice", "Lemon Juice", "Soda Water"],
+    allergens: [],
+    isNonAlcoholic: true,
     image: "",
-    hasNaOption: false,
-    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
-  },
-  {
-    id: "hawaiian-roll-sandwiches",
-    name: "Hawaiian Roll Sandwiches",
-    category: "food",
-    ingredients: ["Ham", "Swiss Cheese", "Mayo", "Garlic Butter"],
-    allergens: ["Dairy"],
-    image: "/images/hawaiian-rolls.jpg",
-    hasNaOption: false,
-    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
-  },
-  {
-    id: "banana-cake",
-    name: "Banana Cake",
-    category: "food",
-    ingredients: ["Brown Butter Frosting", "Salted Caramel", "Caramelized Banana"],
-    allergens: ["Dairy"],
-    image: "/images/banana-cake.jpg",
     hasNaOption: false,
     color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
