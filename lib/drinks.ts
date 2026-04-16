@@ -8,8 +8,9 @@ export const drinks: Drink[] = [
     category: "drinks",
     ingredients: ["Milk-Clarified Punch", "Pineapple Juice", "Aged Rum", "Mezcal"],
     allergens: ["Dairy"],
+    image: "/images/smokey-pineapple-rum.jpg",
     hasNaOption: false,
-    color: "", image: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
   {
     id: "key-lime-pie-cocktail",
@@ -17,8 +18,9 @@ export const drinks: Drink[] = [
     category: "drinks",
     ingredients: ["Bombay Sapphire Gin", "The Plum I Suppose/Stonefruit", "Key Lime Juice", "Cream", "Egg White", "Soda Water"],
     allergens: ["Dairy", "Egg"],
+    image: "/images/key-lime-pie.jpg",
     hasNaOption: false,
-    color: "", image: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
   {
     id: "espresso-martini",
@@ -31,8 +33,9 @@ export const drinks: Drink[] = [
       { id: "dairy-free", label: "Make dairy-free" },
       { id: "replace-vodka", label: "Replace vodka" },
     ],
+    image: "",
     hasNaOption: false,
-    color: "", image: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
   {
     id: "lychee-guava-fizz",
@@ -41,8 +44,9 @@ export const drinks: Drink[] = [
     ingredients: ["Lychee Juice", "Guava Juice", "Lemon Juice", "Soda Water"],
     allergens: [],
     isNonAlcoholic: true,
+    image: "",
     hasNaOption: false,
-    color: "", image: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
   {
     id: "pandan-coconut-fizz",
@@ -54,8 +58,9 @@ export const drinks: Drink[] = [
     options: [
       { id: "egg-free", label: "Make egg-free" },
     ],
+    image: "/images/pandan-coconut-fizz.jpg",
     hasNaOption: false,
-    color: "", image: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
 
   // ── Food ──
@@ -70,8 +75,9 @@ export const drinks: Drink[] = [
       { id: "meatless", label: "Make meatless" },
       { id: "chili-oil", label: "Add chili oil" },
     ],
+    image: "",
     hasNaOption: false,
-    color: "", image: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
   {
     id: "hawaiian-roll-sandwiches",
@@ -79,8 +85,9 @@ export const drinks: Drink[] = [
     category: "food",
     ingredients: ["Ham", "Swiss Cheese", "Mayo", "Garlic Butter"],
     allergens: ["Dairy"],
+    image: "/images/hawaiian-rolls.jpg",
     hasNaOption: false,
-    color: "", image: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
   {
     id: "banana-cake",
@@ -88,8 +95,9 @@ export const drinks: Drink[] = [
     category: "food",
     ingredients: ["Brown Butter Frosting", "Salted Caramel", "Caramelized Banana"],
     allergens: ["Dairy"],
+    image: "/images/banana-cake.jpg",
     hasNaOption: false,
-    color: "", image: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
+    color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
 ];
 

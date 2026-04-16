@@ -47,6 +47,17 @@ const OrderModal = ({
           &times;
         </button>
 
+        {/* Photo in modal */}
+        {drink.image && (
+          <div className="mb-4 rounded-xl overflow-hidden">
+            <img
+              src={drink.image}
+              alt={drink.name}
+              className="w-full h-48 object-cover"
+            />
+          </div>
+        )}
+
         <h2 className="text-xl font-bold text-gray-900 mb-1 pr-8">
           {drink.name}
           {drink.isNonAlcoholic && (
@@ -58,16 +69,9 @@ const OrderModal = ({
           {drink.ingredients.join(", ")}
         </p>
 
-        {drink.allergens.length > 0 && (
-          <p className="text-xs text-gray-400 mb-3">
-            &rarr; Allergens: {drink.allergens.join(", ")}
-          </p>
-        )}
-        {drink.allergens.length === 0 && (
-          <p className="text-xs text-gray-400 mb-3">
-            &rarr; Allergens: None
-          </p>
-        )}
+        <p className="text-xs text-gray-400 mb-3">
+          &rarr; Allergens: {drink.allergens.length > 0 ? drink.allergens.join(", ") : "None"}
+        </p>
 
         {/* Options */}
         {drink.options && drink.options.length > 0 && (
@@ -140,13 +144,6 @@ export default function Menu({ category, onOrderPlaced, hasActiveOrder }: MenuPr
         .find((row) => row.startsWith("userName="))
         ?.split("=")[1];
 
-      if (!userName) {
-        setError("Please enter your name first");
-        setOrdering(null);
-        return;
-      }
-
-      // Build comment with selected options
       const selected = optionSelections[drink.id] || [];
       const optionLabels = selected
         .map((optId) => drink.options?.find((o) => o.id === optId)?.label)
@@ -163,7 +160,7 @@ export default function Menu({ category, onOrderPlaced, hasActiveOrder }: MenuPr
           drinkId: drink.id,
           isNonAlcoholic: false,
           comment: fullComment,
-          userName: decodeURIComponent(userName),
+          userName: userName ? decodeURIComponent(userName) : "Guest",
           selectedOptions: selected,
         }),
       });
@@ -199,37 +196,53 @@ export default function Menu({ category, onOrderPlaced, hasActiveOrder }: MenuPr
         </div>
       )}
 
-      <div className="space-y-4">
-        {items.map((drink, index) => (
-          <button
-            key={drink.id}
-            onClick={() => setSelectedDrink(drink)}
-            className="menu-card w-full text-left p-5 cursor-pointer"
-            style={{
-              // Slight staggered offset like the image
-              marginLeft: index % 2 === 1 ? "12px" : "0",
-              marginRight: index % 2 === 0 ? "12px" : "0",
-            }}
-          >
-            <h3 className="font-bold text-gray-900 text-base mb-1">
-              {drink.name}
-              {drink.isNonAlcoholic && (
-                <span className="text-sm font-normal text-gray-500 ml-1.5">(Non-Alcoholic)</span>
-              )}
-            </h3>
-            <p className="text-sm text-gray-500 leading-relaxed mb-1.5">
-              {drink.ingredients.join(", ")}
-            </p>
-            <p className="text-xs text-gray-400">
-              &rarr; Allergens: {drink.allergens.length > 0 ? drink.allergens.join(", ") : "None"}
-            </p>
-            {drink.notes && (
-              <p className="text-xs text-gray-500 mt-1 italic">
-                *{drink.notes}
-              </p>
-            )}
-          </button>
-        ))}
+      <div className="space-y-5">
+        {items.map((drink, index) => {
+          const hasPhoto = !!drink.image;
+          const photoOnRight = index % 2 === 0;
+
+          return (
+            <button
+              key={drink.id}
+              onClick={() => setSelectedDrink(drink)}
+              className="w-full text-left cursor-pointer group"
+            >
+              <div className={`flex items-stretch gap-3 ${!photoOnRight && hasPhoto ? "flex-row-reverse" : ""}`}>
+                {/* Text card */}
+                <div className="menu-card p-4 flex-1 min-h-[140px] flex flex-col justify-center">
+                  <h3 className="font-bold text-gray-900 text-[15px] leading-snug mb-1">
+                    {drink.name}
+                    {drink.isNonAlcoholic && (
+                      <span className="text-xs font-normal text-gray-500 ml-1.5">(Non-Alcoholic)</span>
+                    )}
+                  </h3>
+                  <p className="text-[13px] text-gray-500 leading-relaxed mb-1.5">
+                    {drink.ingredients.join(", ")}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    &rarr; Allergens: {drink.allergens.length > 0 ? drink.allergens.join(", ") : "None"}
+                  </p>
+                  {drink.notes && (
+                    <p className="text-xs text-gray-500 mt-1 italic">
+                      *{drink.notes}
+                    </p>
+                  )}
+                </div>
+
+                {/* Photo */}
+                {hasPhoto && (
+                  <div className="w-[130px] h-[140px] flex-shrink-0 rounded-2xl overflow-hidden shadow-md group-hover:shadow-lg transition-shadow">
+                    <img
+                      src={drink.image}
+                      alt={drink.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {selectedDrink && (
