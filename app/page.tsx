@@ -118,15 +118,7 @@ export default function Home() {
           <OrderQueue userId={userId} onOrdersChange={handleOrdersChange} />
         </div>
 
-        {/* Footer */}
-        <footer className="text-center mt-16 mb-8">
-          <p className="text-2xl md:text-3xl font-[family-name:var(--font-satisfy)] text-white/70 drop-shadow-[0_1px_6px_rgba(0,0,0,0.2)]">
-            Prepared, Poured, and Performed
-          </p>
-          <p className="text-2xl md:text-3xl font-[family-name:var(--font-satisfy)] text-white/70 drop-shadow-[0_1px_6px_rgba(0,0,0,0.2)]">
-            by Ellen, Hershal, &amp; Evan
-          </p>
-        </footer>
+        <div className="mt-16 mb-8" />
       </div>
     </div>
   );
