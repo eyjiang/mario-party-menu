@@ -118,7 +118,11 @@ export default function Home() {
           <OrderQueue userId={userId} onOrdersChange={handleOrdersChange} />
         </div>
 
-        <div className="mt-16 mb-8" />
+        <footer className="text-center mt-16 mb-8">
+          <p className="text-xl md:text-2xl font-[family-name:var(--font-satisfy)] text-white/70 drop-shadow-[0_1px_6px_rgba(0,0,0,0.2)]">
+            Menu graciously designed by Iris Xie ❤️
+          </p>
+        </footer>
       </div>
     </div>
   );
