@@ -19,6 +19,13 @@ export async function GET() {
     for (const id of orderIds) {
       const order = await redis.hgetall(orderKey(id as string));
       if (order && Object.keys(order).length > 0) {
+        let selectedOptions: string[] = [];
+        try {
+          selectedOptions = JSON.parse((order.selectedOptions as string) || "[]");
+        } catch {
+          selectedOptions = [];
+        }
+
         orders.push({
           id: order.id as string,
           drinkId: order.drinkId as string,
@@ -26,6 +33,7 @@ export async function GET() {
           userName: order.userName as string,
           userId: order.userId as string,
           isNonAlcoholic: order.isNonAlcoholic === "true",
+          selectedOptions,
           comment: (order.comment as string) || "",
           timestamp: Number(order.timestamp),
           upvotes: Number(order.upvotes) || 0,
@@ -48,7 +56,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { drinkId, isNonAlcoholic, userName, comment } = body;
+    const { drinkId, isNonAlcoholic, userName, comment, selectedOptions } = body;
 
     // Get user ID from cookie
     const userId = request.cookies.get("userId")?.value;
@@ -62,15 +70,7 @@ export async function POST(request: NextRequest) {
     // Validate drink
     const drink = getDrinkById(drinkId);
     if (!drink) {
-      return NextResponse.json({ error: "Invalid drink" }, { status: 400 });
-    }
-
-    // Check if NA option is valid for this drink
-    if (isNonAlcoholic && !drink.hasNaOption) {
-      return NextResponse.json(
-        { error: "This drink does not have a non-alcoholic option" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid item" }, { status: 400 });
     }
 
     // Check if user already has a pending order
@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
       userName: userName || "Anonymous",
       userId,
       isNonAlcoholic: isNonAlcoholic || false,
+      selectedOptions: selectedOptions || [],
       comment: (comment || "").slice(0, 800),
       timestamp,
       upvotes: 0,
@@ -102,6 +103,7 @@ export async function POST(request: NextRequest) {
     await redis.hset(orderKey(orderId), {
       ...order,
       isNonAlcoholic: String(order.isNonAlcoholic),
+      selectedOptions: JSON.stringify(order.selectedOptions),
       timestamp: String(timestamp),
       upvotes: "0",
       downvotes: "0",

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #060d08;
-  --foreground: #f5f0e8;
+  --background: #8a9bbd;
+  --foreground: #1a1a2e;
 }
 
 @theme inline {
@@ -13,7 +13,16 @@
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(
+    180deg,
+    #a0aec8 0%,
+    #8a9bbd 15%,
+    #7b8fae 40%,
+    #6d82a0 60%,
+    #5e7590 80%,
+    #4a6340 92%,
+    #3a5530 100%
+  );
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   min-height: 100vh;
@@ -21,102 +30,92 @@ body {
   overflow-x: hidden;
 }
 
-/* Lush layered tropical background */
+/* Palm frond overlay — bottom of page */
 body::before {
   content: "";
   position: fixed;
-  inset: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
   z-index: 0;
-  background:
-    /* Soft light filtering through canopy */
-    radial-gradient(ellipse at 20% 10%, rgba(45, 120, 50, 0.18) 0%, transparent 45%),
-    radial-gradient(ellipse at 80% 5%, rgba(30, 90, 35, 0.15) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 50%, rgba(25, 70, 30, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 10% 80%, rgba(40, 100, 45, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 90% 85%, rgba(35, 85, 40, 0.14) 0%, transparent 45%),
-    /* Warm golden accent light */
-    radial-gradient(ellipse at 50% 0%, rgba(180, 140, 60, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 30% 100%, rgba(139, 90, 43, 0.04) 0%, transparent 40%);
   pointer-events: none;
+  background:
+    /* Large frond sweeping from bottom-left */
+    radial-gradient(ellipse 500px 300px at 0% 100%, rgba(40, 80, 30, 0.35) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 250px at 10% 95%, rgba(50, 100, 40, 0.25) 0%, transparent 60%),
+    /* Frond from bottom-right */
+    radial-gradient(ellipse 450px 280px at 100% 100%, rgba(45, 85, 35, 0.3) 0%, transparent 70%),
+    radial-gradient(ellipse 350px 200px at 90% 95%, rgba(55, 105, 45, 0.2) 0%, transparent 60%),
+    /* Center bottom fill */
+    radial-gradient(ellipse 600px 200px at 50% 100%, rgba(35, 70, 25, 0.2) 0%, transparent 70%);
 }
 
-/* Tropical leaf overlay layer */
+/* Subtle light flare from top */
 body::after {
   content: "";
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
   z-index: 0;
-  opacity: 0.06;
-  background-image:
-    /* Large monstera-like shapes via radial gradients */
-    radial-gradient(ellipse 180px 220px at 5% 15%, #2d6b30 0%, transparent 70%),
-    radial-gradient(ellipse 150px 200px at 95% 8%, #1a5a22 0%, transparent 70%),
-    radial-gradient(ellipse 200px 160px at 0% 60%, #245a28 0%, transparent 70%),
-    radial-gradient(ellipse 170px 240px at 100% 55%, #2d6b30 0%, transparent 70%),
-    radial-gradient(ellipse 220px 180px at 8% 95%, #1a5a22 0%, transparent 70%),
-    radial-gradient(ellipse 160px 210px at 92% 90%, #245a28 0%, transparent 70%),
-    /* Smaller fern-like accents */
-    radial-gradient(ellipse 80px 120px at 15% 35%, #3a8040 0%, transparent 70%),
-    radial-gradient(ellipse 90px 110px at 85% 30%, #3a8040 0%, transparent 70%),
-    radial-gradient(ellipse 100px 80px at 20% 75%, #2d6b30 0%, transparent 70%),
-    radial-gradient(ellipse 70px 130px at 75% 70%, #2d6b30 0%, transparent 70%);
   pointer-events: none;
+  background:
+    radial-gradient(ellipse at 40% 0%, rgba(200, 210, 230, 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse at 60% 10%, rgba(180, 195, 220, 0.15) 0%, transparent 50%);
 }
 
-/* Scrollbar styling */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(139, 90, 43, 0.3);
+  background: rgba(255, 255, 255, 0.25);
   border-radius: 3px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 90, 43, 0.5);
-}
-
-/* Selection styling */
+/* Selection */
 ::selection {
-  background: rgba(218, 165, 32, 0.4);
+  background: rgba(100, 130, 180, 0.4);
   color: #fff;
 }
 
-/* Gold text effect */
-.gold-text {
-  background: linear-gradient(135deg, #c9953c, #f0d080, #c9953c);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Menu item card — white rounded bubble */
+.menu-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.06);
+  color: #1a1a2e;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Tropical divider */
-.tropical-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(180, 140, 60, 0.4), rgba(218, 165, 32, 0.25), rgba(180, 140, 60, 0.4), transparent);
+.menu-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-/* Menu item card */
-.menu-item {
-  position: relative;
-  transition: all 0.3s ease;
+/* Order card in the queue */
+.order-card {
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  color: #1a1a2e;
 }
 
-.menu-item::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  background: radial-gradient(ellipse at center, rgba(218, 165, 32, 0.03) 0%, transparent 70%);
+.order-card.completed {
+  opacity: 0.45;
 }
 
-.menu-item:hover::before {
-  opacity: 1;
+.order-card.completed .order-name {
+  text-decoration: line-through;
+  text-decoration-color: rgba(180, 60, 60, 0.6);
+  text-decoration-thickness: 2px;
 }

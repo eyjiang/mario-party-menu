@@ -5,6 +5,7 @@ import { drinks } from "@/lib/drinks";
 import { Drink } from "@/lib/types";
 
 interface MenuProps {
+  category: "drinks" | "food";
   onOrderPlaced: () => void;
   hasActiveOrder: boolean;
 }
@@ -15,8 +16,8 @@ const OrderModal = ({
   onOrder,
   isOrdering,
   hasActiveOrder,
-  naSelection,
-  onToggleNa,
+  selectedOptions,
+  onToggleOption,
   comment,
   onCommentChange,
 }: {
@@ -25,96 +26,108 @@ const OrderModal = ({
   onOrder: () => void;
   isOrdering: boolean;
   hasActiveOrder: boolean;
-  naSelection: boolean;
-  onToggleNa: () => void;
+  selectedOptions: string[];
+  onToggleOption: (optionId: string) => void;
   comment: string;
   onCommentChange: (c: string) => void;
 }) => {
   return (
     <div
-      className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-[#0c1a10] border border-amber-800/20 rounded-2xl p-8 max-w-md w-full relative overflow-hidden"
+        className="menu-card p-6 max-w-md w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Corner accents */}
-        <div className="absolute top-0 left-0 w-20 h-[1px] bg-gradient-to-r from-amber-600/40 to-transparent" />
-        <div className="absolute top-0 left-0 w-[1px] h-20 bg-gradient-to-b from-amber-600/40 to-transparent" />
-        <div className="absolute bottom-0 right-0 w-20 h-[1px] bg-gradient-to-l from-amber-600/40 to-transparent" />
-        <div className="absolute bottom-0 right-0 w-[1px] h-20 bg-gradient-to-t from-amber-600/40 to-transparent" />
-
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold font-[family-name:var(--font-playfair)] gold-text mb-3">
-            {drink.name}
-          </h2>
-          <p className="text-amber-600/50 font-[family-name:var(--font-cormorant)] text-lg italic leading-relaxed">
-            {drink.ingredients.join(" \u00B7 ")}
-          </p>
-        </div>
-
-        <div className="mb-6">
-          <textarea
-            value={comment}
-            onChange={(e) => onCommentChange(e.target.value.slice(0, 800))}
-            placeholder="Special requests..."
-            className="w-full bg-black/20 border border-amber-900/20 rounded-lg px-4 py-3 text-sm text-amber-50/80 placeholder-amber-800/30 focus:outline-none focus:border-amber-700/40 resize-none font-[family-name:var(--font-cormorant)]"
-            rows={2}
-          />
-        </div>
-
-        <div className="flex items-center gap-3">
-          {drink.hasNaOption && (
-            <label className="flex items-center gap-2 cursor-pointer bg-black/20 px-4 py-3 rounded-xl border border-amber-900/20">
-              <input
-                type="checkbox"
-                checked={naSelection}
-                onChange={onToggleNa}
-                className="w-4 h-4 rounded accent-amber-600"
-              />
-              <span className="text-sm font-[family-name:var(--font-cormorant)] text-amber-300/70">Keiki Size</span>
-            </label>
-          )}
-          <button
-            onClick={onOrder}
-            disabled={isOrdering || hasActiveOrder}
-            className="flex-1 py-3 rounded-xl font-[family-name:var(--font-cormorant)] font-semibold text-base tracking-[0.15em] uppercase transition-all disabled:opacity-40 border border-amber-700/30 hover:border-amber-600/50"
-            style={{
-              backgroundColor: hasActiveOrder ? "rgba(30,30,30,0.5)" : "rgba(139, 90, 43, 0.2)",
-              color: hasActiveOrder ? "rgba(160,160,160,0.5)" : "#d4a840",
-            }}
-          >
-            {isOrdering ? (
-              <span className="animate-pulse">Placing Order...</span>
-            ) : hasActiveOrder ? (
-              <span>Order Placed</span>
-            ) : (
-              "Place Order"
-            )}
-          </button>
-        </div>
-
         <button
           onClick={onClose}
-          className="absolute top-4 right-5 text-amber-800/40 hover:text-amber-400/60 text-xl transition-colors"
+          className="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-xl transition-colors"
         >
           &times;
+        </button>
+
+        <h2 className="text-xl font-bold text-gray-900 mb-1 pr-8">
+          {drink.name}
+          {drink.isNonAlcoholic && (
+            <span className="text-sm font-normal text-gray-500 ml-2">(Non-Alcoholic)</span>
+          )}
+        </h2>
+
+        <p className="text-sm text-gray-500 mb-1">
+          {drink.ingredients.join(", ")}
+        </p>
+
+        {drink.allergens.length > 0 && (
+          <p className="text-xs text-gray-400 mb-3">
+            &rarr; Allergens: {drink.allergens.join(", ")}
+          </p>
+        )}
+        {drink.allergens.length === 0 && (
+          <p className="text-xs text-gray-400 mb-3">
+            &rarr; Allergens: None
+          </p>
+        )}
+
+        {/* Options */}
+        {drink.options && drink.options.length > 0 && (
+          <div className="mb-4 space-y-2">
+            {drink.options.map((opt) => (
+              <label
+                key={opt.id}
+                className="flex items-center gap-2.5 cursor-pointer group"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedOptions.includes(opt.id)}
+                  onChange={() => onToggleOption(opt.id)}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-400 accent-blue-500"
+                />
+                <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
+                  {opt.label}
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
+
+        <textarea
+          value={comment}
+          onChange={(e) => onCommentChange(e.target.value.slice(0, 800))}
+          placeholder="Any other notes..."
+          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-300 resize-none mb-4"
+          rows={2}
+        />
+
+        <button
+          onClick={onOrder}
+          disabled={isOrdering || hasActiveOrder}
+          className="w-full py-2.5 rounded-xl font-semibold text-sm tracking-wide transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-[#5a6f8e] hover:bg-[#4d6180] text-white"
+        >
+          {isOrdering ? "Placing order..." : hasActiveOrder ? "Order already placed" : "Place Order"}
         </button>
       </div>
     </div>
   );
 };
 
-export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
+export default function Menu({ category, onOrderPlaced, hasActiveOrder }: MenuProps) {
   const [selectedDrink, setSelectedDrink] = useState<Drink | null>(null);
   const [ordering, setOrdering] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [naSelections, setNaSelections] = useState<Record<string, boolean>>({});
+  const [optionSelections, setOptionSelections] = useState<Record<string, string[]>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
 
-  const toggleNa = (drinkId: string) => {
-    setNaSelections((prev) => ({ ...prev, [drinkId]: !prev[drinkId] }));
+  const items = drinks.filter((d) => d.category === category);
+
+  const toggleOption = (drinkId: string, optionId: string) => {
+    setOptionSelections((prev) => {
+      const current = prev[drinkId] || [];
+      if (current.includes(optionId)) {
+        return { ...prev, [drinkId]: current.filter((o) => o !== optionId) };
+      }
+      return { ...prev, [drinkId]: [...current, optionId] };
+    });
   };
 
   const placeOrder = async (drink: Drink) => {
@@ -133,14 +146,25 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
         return;
       }
 
+      // Build comment with selected options
+      const selected = optionSelections[drink.id] || [];
+      const optionLabels = selected
+        .map((optId) => drink.options?.find((o) => o.id === optId)?.label)
+        .filter(Boolean);
+      const baseComment = comments[drink.id] || "";
+      const fullComment = optionLabels.length > 0
+        ? `[${optionLabels.join(", ")}]${baseComment ? " " + baseComment : ""}`
+        : baseComment;
+
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           drinkId: drink.id,
-          isNonAlcoholic: naSelections[drink.id] || false,
-          comment: comments[drink.id] || "",
+          isNonAlcoholic: false,
+          comment: fullComment,
           userName: decodeURIComponent(userName),
+          selectedOptions: selected,
         }),
       });
 
@@ -152,6 +176,7 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
       }
 
       setComments((prev) => ({ ...prev, [drink.id]: "" }));
+      setOptionSelections((prev) => ({ ...prev, [drink.id]: [] }));
       setSelectedDrink(null);
       onOrderPlaced();
     } catch {
@@ -161,53 +186,51 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
     }
   };
 
-  const mainDishes = drinks.filter((d) => d.id !== "haupia");
-  const desserts = drinks.filter((d) => d.id === "haupia");
-
-  const renderSection = (title: string, items: Drink[]) => (
-    <div className="mb-14">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold font-[family-name:var(--font-playfair)] gold-text tracking-wide uppercase">
-          {title}
-        </h2>
-        <div className="tropical-divider w-16 mt-3" />
-      </div>
-
-      <div className="space-y-1">
-        {items.map((drink) => (
-          <button
-            key={drink.id}
-            onClick={() => setSelectedDrink(drink)}
-            className="menu-item w-full text-left py-5 px-1 rounded-lg group cursor-pointer"
-          >
-            <div className="flex items-baseline justify-between gap-4">
-              <h3 className="text-xl font-[family-name:var(--font-playfair)] font-semibold text-amber-100/90 group-hover:text-amber-50 transition-colors">
-                {drink.name}
-              </h3>
-              <div className="flex-1 border-b border-dotted border-amber-800/15 mb-1 min-w-[40px]" />
-              <span className="text-base font-[family-name:var(--font-cormorant)] text-amber-500/60 flex-shrink-0">
-                Market
-              </span>
-            </div>
-            <p className="text-sm text-amber-600/35 font-[family-name:var(--font-cormorant)] mt-1.5 leading-relaxed italic pr-20">
-              {drink.ingredients.join(", ")}
-            </p>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
   return (
     <div>
+      {/* Section header */}
+      <h2 className="text-5xl md:text-6xl font-[family-name:var(--font-great-vibes)] text-white/80 drop-shadow-[0_1px_8px_rgba(0,0,0,0.2)] mb-6">
+        {category === "drinks" ? "Drinks" : "Food"}
+      </h2>
+
       {error && (
-        <div className="border border-red-900/30 rounded-lg p-3 mb-6 text-red-300/70 text-center text-sm font-[family-name:var(--font-cormorant)]">
+        <div className="menu-card p-3 mb-4 text-red-600 text-sm text-center">
           {error}
         </div>
       )}
 
-      {renderSection("Plates", mainDishes)}
-      {desserts.length > 0 && renderSection("Desserts", desserts)}
+      <div className="space-y-4">
+        {items.map((drink, index) => (
+          <button
+            key={drink.id}
+            onClick={() => setSelectedDrink(drink)}
+            className="menu-card w-full text-left p-5 cursor-pointer"
+            style={{
+              // Slight staggered offset like the image
+              marginLeft: index % 2 === 1 ? "12px" : "0",
+              marginRight: index % 2 === 0 ? "12px" : "0",
+            }}
+          >
+            <h3 className="font-bold text-gray-900 text-base mb-1">
+              {drink.name}
+              {drink.isNonAlcoholic && (
+                <span className="text-sm font-normal text-gray-500 ml-1.5">(Non-Alcoholic)</span>
+              )}
+            </h3>
+            <p className="text-sm text-gray-500 leading-relaxed mb-1.5">
+              {drink.ingredients.join(", ")}
+            </p>
+            <p className="text-xs text-gray-400">
+              &rarr; Allergens: {drink.allergens.length > 0 ? drink.allergens.join(", ") : "None"}
+            </p>
+            {drink.notes && (
+              <p className="text-xs text-gray-500 mt-1 italic">
+                *{drink.notes}
+              </p>
+            )}
+          </button>
+        ))}
+      </div>
 
       {selectedDrink && (
         <OrderModal
@@ -216,8 +239,8 @@ export default function Menu({ onOrderPlaced, hasActiveOrder }: MenuProps) {
           onOrder={() => placeOrder(selectedDrink)}
           isOrdering={ordering === selectedDrink.id}
           hasActiveOrder={hasActiveOrder}
-          naSelection={naSelections[selectedDrink.id] || false}
-          onToggleNa={() => toggleNa(selectedDrink.id)}
+          selectedOptions={optionSelections[selectedDrink.id] || []}
+          onToggleOption={(optId) => toggleOption(selectedDrink.id, optId)}
           comment={comments[selectedDrink.id] || ""}
           onCommentChange={(c) => setComments((prev) => ({ ...prev, [selectedDrink.id]: c }))}
         />

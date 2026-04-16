@@ -57,40 +57,38 @@ export default function NameInput() {
 
   if (loading && !isEditing) {
     return (
-      <div className="mb-6 py-3">
-        <span className="text-amber-800/30 animate-pulse font-[family-name:var(--font-cormorant)] text-sm">Loading...</span>
+      <div className="mb-4">
+        <span className="text-white/40 animate-pulse text-sm">Loading...</span>
       </div>
     );
   }
 
   if (isEditing) {
     return (
-      <div className="mb-8 border-b border-amber-900/15 pb-8">
-        <label className="block text-sm font-[family-name:var(--font-cormorant)] font-light mb-3 text-amber-500/50 tracking-wide uppercase">
-          Your Name
+      <div className="menu-card p-5 mb-6 max-w-md mx-auto">
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          What&apos;s your name?
         </label>
         {error && (
-          <div className="mb-3 text-red-400/60 text-sm font-[family-name:var(--font-cormorant)]">
-            {error}
-          </div>
+          <div className="mb-2 text-red-500 text-sm">{error}</div>
         )}
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && saveName()}
             placeholder="Enter your name"
-            className="flex-1 bg-transparent border-b border-amber-800/20 px-1 py-2 text-amber-100/80 text-lg placeholder-amber-800/20 focus:outline-none focus:border-amber-600/40 transition-colors font-[family-name:var(--font-cormorant)]"
+            className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-300 text-sm"
             maxLength={30}
             autoFocus
           />
           <button
             onClick={saveName}
             disabled={!name.trim() || loading}
-            className="text-amber-500/50 hover:text-amber-400/70 disabled:text-amber-900/20 disabled:cursor-not-allowed font-[family-name:var(--font-cormorant)] text-sm tracking-widest uppercase transition-colors px-2"
+            className="bg-[#5a6f8e] hover:bg-[#4d6180] disabled:bg-gray-300 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-white text-sm font-semibold transition-colors"
           >
-            {loading ? "..." : "Continue"}
+            {loading ? "..." : "Go"}
           </button>
         </div>
       </div>
@@ -98,15 +96,15 @@ export default function NameInput() {
   }
 
   return (
-    <div className="mb-8 flex items-baseline justify-between border-b border-amber-900/10 pb-6">
-      <span className="font-[family-name:var(--font-cormorant)] text-amber-600/40 text-sm tracking-wide">
-        Welcome, <span className="text-amber-200/70 text-base">{savedName}</span>
+    <div className="flex items-center justify-center gap-3 mb-6">
+      <span className="text-white/70 text-sm drop-shadow-[0_1px_4px_rgba(0,0,0,0.15)]">
+        Ordering as <strong className="text-white">{savedName}</strong>
       </span>
       <button
         onClick={() => setIsEditing(true)}
-        className="text-xs text-amber-700/25 hover:text-amber-500/50 transition-colors font-[family-name:var(--font-cormorant)] tracking-wider uppercase"
+        className="text-xs text-white/40 hover:text-white/70 transition-colors underline underline-offset-2"
       >
-        Change
+        change
       </button>
     </div>
   );

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display, Pacifico, Cormorant_Garamond, Satisfy } from "next/font/google";
+import { Geist, Geist_Mono, Great_Vibes, Satisfy } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,20 +12,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-});
-
-const pacifico = Pacifico({
+const greatVibes = Great_Vibes({
   weight: "400",
-  variable: "--font-pacifico",
-  subsets: ["latin"],
-});
-
-const cormorant = Cormorant_Garamond({
-  weight: ["300", "400", "600", "700"],
-  variable: "--font-cormorant",
+  variable: "--font-great-vibes",
   subsets: ["latin"],
 });
 
@@ -36,8 +25,8 @@ const satisfy = Satisfy({
 });
 
 export const metadata: Metadata = {
-  title: "Aloha Kitchen",
-  description: "Authentic Hawaiian cuisine - Order from our menu",
+  title: "Ambrosia & Provisions",
+  description: "Prepared, Poured, and Performed by Ellen, Hershal, & Evan",
 };
 
 export default function RootLayout({
@@ -48,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${pacifico.variable} ${cormorant.variable} ${satisfy.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${greatVibes.variable} ${satisfy.variable} antialiased`}
       >
         {children}
       </body>

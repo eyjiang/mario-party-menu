@@ -5,6 +5,7 @@ export interface Order {
   userName: string;
   userId: string;
   isNonAlcoholic: boolean;
+  selectedOptions: string[];
   comment: string;
   timestamp: number;
   upvotes: number;
@@ -14,7 +15,12 @@ export interface Order {
 export interface Drink {
   id: string;
   name: string;
+  category: "drinks" | "food";
   ingredients: string[];
+  allergens: string[];
+  notes?: string;
+  options?: { id: string; label: string }[];
+  isNonAlcoholic?: boolean;
   hasNaOption: boolean;
   color: string;
   image: string;
