@@ -122,6 +122,12 @@ export default function Home() {
           <p className="text-xl md:text-2xl font-[family-name:var(--font-satisfy)] text-white/70 drop-shadow-[0_1px_6px_rgba(0,0,0,0.2)]">
             Menu graciously designed by Iris Xie ❤️
           </p>
+          <a
+            href="/staff"
+            className="inline-block mt-4 text-xs text-white/25 hover:text-white/50 transition-colors"
+          >
+            Staff
+          </a>
         </footer>
       </div>
     </div>
