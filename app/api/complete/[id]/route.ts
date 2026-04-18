@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis, ORDERS_QUEUE, orderKey, userOrderKey } from "@/lib/redis";
+import { redis, orderKey, userOrderKey } from "@/lib/redis";
 
-// POST /api/complete/[id] - Mark order as complete (staff only)
+// POST /api/complete/[id] - Mark order as complete (staff only). Keeps the
+// order in the queue so staff can still reference it; clears the per-user
+// "active" marker so the customer can order again if needed.
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -11,21 +13,22 @@ export async function POST(
     const body = await request.json();
     const { staffKey } = body;
 
-    // Verify staff key
     if (staffKey !== process.env.STAFF_KEY) {
       return NextResponse.json({ error: "Invalid staff key" }, { status: 403 });
     }
 
-    // Fetch the order
     const order = await redis.hgetall(orderKey(orderId));
     if (!order || Object.keys(order).length === 0) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    // Delete order
-    await redis.del(orderKey(orderId));
-    await redis.zrem(ORDERS_QUEUE, orderId);
-    await redis.del(userOrderKey(order.userId as string));
+    await redis.hset(orderKey(orderId), {
+      status: "complete",
+      completedAt: String(Date.now()),
+    });
+    if (order.userId) {
+      await redis.del(userOrderKey(order.userId as string));
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

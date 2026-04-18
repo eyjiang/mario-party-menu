@@ -1,15 +1,19 @@
-export interface Order {
-  id: string;
+export interface OrderItem {
   drinkId: string;
   drinkName: string;
+  category: "drinks" | "food";
+  selectedOptions: string[];
+  optionNotes?: Record<string, string>;
+}
+
+export interface Order {
+  id: string;
   userName: string;
   userId: string;
-  isNonAlcoholic: boolean;
-  selectedOptions: string[];
-  comment: string;
+  items: OrderItem[];
   timestamp: number;
-  upvotes: number;
-  downvotes: number;
+  status: "pending" | "complete";
+  completedAt?: number;
 }
 
 export interface Drink {

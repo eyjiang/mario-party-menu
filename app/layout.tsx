@@ -25,7 +25,7 @@ const satisfy = Satisfy({
 });
 
 export const metadata: Metadata = {
-  title: "Ambrosia & Provisions",
+  title: "Lei'd back Bites & Bevs",
   description: "Prepared, Poured, and Performed by Ellen, Hershal, & Evan",
 };
 

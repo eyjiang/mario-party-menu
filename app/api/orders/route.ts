@@ -2,44 +2,51 @@ import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { redis, ORDERS_QUEUE, orderKey, userOrderKey } from "@/lib/redis";
 import { getDrinkById } from "@/lib/drinks";
-import { Order } from "@/lib/types";
+import { Order, OrderItem } from "@/lib/types";
 
-// GET /api/orders - List all pending orders
+type StoredOrder = {
+  id: string;
+  userName: string;
+  userId: string;
+  items: string;
+  timestamp: string;
+  status: string;
+  completedAt?: string;
+};
+
+function parseOrder(raw: Record<string, unknown>): Order | null {
+  if (!raw || Object.keys(raw).length === 0) return null;
+  let items: OrderItem[] = [];
+  try {
+    items = JSON.parse((raw.items as string) || "[]");
+  } catch {
+    items = [];
+  }
+  return {
+    id: raw.id as string,
+    userName: raw.userName as string,
+    userId: raw.userId as string,
+    items,
+    timestamp: Number(raw.timestamp),
+    status: (raw.status as "pending" | "complete") || "pending",
+    completedAt: raw.completedAt ? Number(raw.completedAt) : undefined,
+  };
+}
+
+// GET /api/orders - List all orders (pending + completed)
 export async function GET() {
   try {
-    // Get all order IDs from the sorted set
     const orderIds = await redis.zrange(ORDERS_QUEUE, 0, -1);
 
     if (!orderIds || orderIds.length === 0) {
       return NextResponse.json({ orders: [] });
     }
 
-    // Fetch all order details
     const orders: Order[] = [];
     for (const id of orderIds) {
-      const order = await redis.hgetall(orderKey(id as string));
-      if (order && Object.keys(order).length > 0) {
-        let selectedOptions: string[] = [];
-        try {
-          selectedOptions = JSON.parse((order.selectedOptions as string) || "[]");
-        } catch {
-          selectedOptions = [];
-        }
-
-        orders.push({
-          id: order.id as string,
-          drinkId: order.drinkId as string,
-          drinkName: order.drinkName as string,
-          userName: order.userName as string,
-          userId: order.userId as string,
-          isNonAlcoholic: order.isNonAlcoholic === "true",
-          selectedOptions,
-          comment: (order.comment as string) || "",
-          timestamp: Number(order.timestamp),
-          upvotes: Number(order.upvotes) || 0,
-          downvotes: Number(order.downvotes) || 0,
-        });
-      }
+      const raw = await redis.hgetall(orderKey(id as string));
+      const parsed = parseOrder(raw as Record<string, unknown>);
+      if (parsed) orders.push(parsed);
     }
 
     return NextResponse.json({ orders });
@@ -56,9 +63,15 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { drinkId, isNonAlcoholic, userName, comment, selectedOptions } = body;
+    const { userName, items: rawItems } = body as {
+      userName?: string;
+      items?: Array<{
+        drinkId: string;
+        selectedOptions?: string[];
+        optionNotes?: Record<string, string>;
+      }>;
+    };
 
-    // Get user ID from cookie
     const userId = request.cookies.get("userId")?.value;
     if (!userId) {
       return NextResponse.json(
@@ -67,47 +80,93 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate drink
-    const drink = getDrinkById(drinkId);
-    if (!drink) {
-      return NextResponse.json({ error: "Invalid item" }, { status: 400 });
-    }
-
-    // Check if user already has a pending order
-    const existingOrderId = await redis.get(userOrderKey(userId));
-    if (existingOrderId) {
+    const cleanName = (userName || "").trim();
+    if (!cleanName) {
       return NextResponse.json(
-        { error: "You already have a pending order" },
-        { status: 409 }
+        { error: "Please enter your name" },
+        { status: 400 }
       );
     }
 
-    // Create the order
+    if (!Array.isArray(rawItems) || rawItems.length === 0) {
+      return NextResponse.json(
+        { error: "Please select at least one item" },
+        { status: 400 }
+      );
+    }
+
+    const items: OrderItem[] = [];
+    let drinkCount = 0;
+    let foodCount = 0;
+    for (const it of rawItems) {
+      const drink = getDrinkById(it.drinkId);
+      if (!drink) {
+        return NextResponse.json({ error: "Invalid item" }, { status: 400 });
+      }
+      if (drink.category === "drinks") drinkCount++;
+      else foodCount++;
+      items.push({
+        drinkId: drink.id,
+        drinkName: drink.name,
+        category: drink.category,
+        selectedOptions: Array.isArray(it.selectedOptions)
+          ? it.selectedOptions
+          : [],
+        optionNotes:
+          it.optionNotes && typeof it.optionNotes === "object"
+            ? it.optionNotes
+            : undefined,
+      });
+    }
+
+    if (drinkCount > 1) {
+      return NextResponse.json(
+        { error: "Only one drink per order" },
+        { status: 400 }
+      );
+    }
+    if (foodCount > 2) {
+      return NextResponse.json(
+        { error: "Up to two food items per order" },
+        { status: 400 }
+      );
+    }
+
+    const existingOrderId = await redis.get(userOrderKey(userId));
+    if (existingOrderId) {
+      const raw = await redis.hgetall(orderKey(existingOrderId as string));
+      const existing = parseOrder(raw as Record<string, unknown>);
+      if (existing && existing.status === "pending") {
+        return NextResponse.json(
+          { error: "You already have a pending order" },
+          { status: 409 }
+        );
+      }
+      // Stale marker (e.g., order was completed) — clear and continue.
+      await redis.del(userOrderKey(userId));
+    }
+
     const orderId = uuidv4();
     const timestamp = Date.now();
     const order: Order = {
       id: orderId,
-      drinkId: drink.id,
-      drinkName: drink.name,
-      userName: userName || "Anonymous",
+      userName: cleanName.slice(0, 60),
       userId,
-      isNonAlcoholic: isNonAlcoholic || false,
-      selectedOptions: selectedOptions || [],
-      comment: (comment || "").slice(0, 800),
+      items,
       timestamp,
-      upvotes: 0,
-      downvotes: 0,
+      status: "pending",
     };
 
-    // Store order in Redis
-    await redis.hset(orderKey(orderId), {
-      ...order,
-      isNonAlcoholic: String(order.isNonAlcoholic),
-      selectedOptions: JSON.stringify(order.selectedOptions),
+    const stored: StoredOrder = {
+      id: order.id,
+      userName: order.userName,
+      userId: order.userId,
+      items: JSON.stringify(order.items),
       timestamp: String(timestamp),
-      upvotes: "0",
-      downvotes: "0",
-    });
+      status: "pending",
+    };
+
+    await redis.hset(orderKey(orderId), stored);
     await redis.zadd(ORDERS_QUEUE, { score: timestamp, member: orderId });
     await redis.set(userOrderKey(userId), orderId);
 
