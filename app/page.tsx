@@ -1,18 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import Link from "next/link";
 import Menu from "@/components/Menu";
+import OrderQueue from "@/components/OrderQueue";
 
 export default function Home() {
+  const [userId, setUserId] = useState("");
+
   useEffect(() => {
     const existing = document.cookie
       .split("; ")
-      .find((row) => row.startsWith("userId="));
-    if (!existing) {
+      .find((row) => row.startsWith("userId="))
+      ?.split("=")[1];
+    if (existing) {
+      setUserId(existing);
+    } else {
       const newId = uuidv4();
       document.cookie = `userId=${newId}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+      setUserId(newId);
     }
   }, []);
 
@@ -76,6 +83,13 @@ export default function Home() {
             Place your order →
           </Link>
         </div>
+
+        {/* Public order queue */}
+        {userId && (
+          <div className="mt-14">
+            <OrderQueue userId={userId} />
+          </div>
+        )}
 
         <footer className="text-center mt-16 mb-8">
           <p className="text-xl md:text-2xl font-[family-name:var(--font-satisfy)] text-white/70 drop-shadow-[0_1px_6px_rgba(0,0,0,0.2)]">

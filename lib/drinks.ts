@@ -55,6 +55,10 @@ export const drinks: Drink[] = [
     category: "drinks",
     ingredients: ["Bombay Sapphire Gin", "The Plum I Suppose/Stonefruit", "Key Lime Juice", "Cream", "Egg White", "Soda Water"],
     allergens: ["Dairy", "Egg"],
+    notes: "Can remove egg whites (loses the foamy top)",
+    options: [
+      { id: "no-egg-white", label: "Remove egg whites" },
+    ],
     image: "/images/key-lime-pie.jpg",
     hasNaOption: false,
     color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
