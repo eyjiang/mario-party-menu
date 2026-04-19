@@ -15,10 +15,14 @@ export async function GET(
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
     let items: OrderItem[] = [];
-    try {
-      items = JSON.parse((raw.items as string) || "[]");
-    } catch {
-      items = [];
+    if (Array.isArray(raw.items)) {
+      items = raw.items as OrderItem[];
+    } else if (typeof raw.items === "string" && raw.items.length > 0) {
+      try {
+        items = JSON.parse(raw.items);
+      } catch {
+        items = [];
+      }
     }
     return NextResponse.json({
       order: {

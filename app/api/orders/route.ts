@@ -17,10 +17,16 @@ type StoredOrder = {
 function parseOrder(raw: Record<string, unknown>): Order | null {
   if (!raw || Object.keys(raw).length === 0) return null;
   let items: OrderItem[] = [];
-  try {
-    items = JSON.parse((raw.items as string) || "[]");
-  } catch {
-    items = [];
+  // Upstash auto-parses JSON-looking strings in hashes, so `raw.items` may come
+  // back already-parsed as an array, or as a string if it wasn't recognized.
+  if (Array.isArray(raw.items)) {
+    items = raw.items as OrderItem[];
+  } else if (typeof raw.items === "string" && raw.items.length > 0) {
+    try {
+      items = JSON.parse(raw.items);
+    } catch {
+      items = [];
+    }
   }
   // Fallback for legacy single-drink orders stored before the items[] schema.
   if (items.length === 0 && raw.drinkId) {
