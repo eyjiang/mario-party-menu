@@ -13,7 +13,7 @@
 }
 
 body {
-  background: url("/images/ellen.png") center center / cover no-repeat fixed,
+  background: url("/images/ellen.png") center calc(50% + 50vh) / cover no-repeat fixed,
     #8a9bbd;
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
