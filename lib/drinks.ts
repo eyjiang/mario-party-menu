@@ -13,7 +13,7 @@ export const drinks: Drink[] = [
       { id: "meatless", label: "Make meatless" },
       { id: "chili-oil", label: "Add chili oil" },
     ],
-    image: "",
+    image: "/images/beef.png",
     hasNaOption: false,
     color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
