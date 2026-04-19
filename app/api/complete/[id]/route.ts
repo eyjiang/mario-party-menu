@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis, orderKey, userOrderKey } from "@/lib/redis";
+import { redis, ORDERS_QUEUE, orderKey, userOrderKey } from "@/lib/redis";
 
-// POST /api/complete/[id] - Mark order as complete (staff only). Keeps the
-// order in the queue so staff can still reference it; clears the per-user
-// "active" marker so the customer can order again if needed.
+// POST /api/complete/[id] - Staff marks an order as done, which removes it
+// entirely from the queue (order hash, queue entry, per-user pending marker,
+// and associated comments).
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -22,10 +22,9 @@ export async function POST(
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    await redis.hset(orderKey(orderId), {
-      status: "complete",
-      completedAt: String(Date.now()),
-    });
+    await redis.del(orderKey(orderId));
+    await redis.zrem(ORDERS_QUEUE, orderId);
+    await redis.del(`orders:${orderId}:comments`);
     if (order.userId) {
       await redis.del(userOrderKey(order.userId as string));
     }

@@ -203,10 +203,10 @@ export default function OrderQueue({ userId }: { userId: string }) {
     }
   };
 
-  const orders = (data?.orders || []).slice().sort((a, b) => {
-    if (a.status !== b.status) return a.status === "pending" ? -1 : 1;
-    return a.timestamp - b.timestamp;
-  });
+  const orders = (data?.orders || [])
+    .filter((o) => o.status !== "complete")
+    .slice()
+    .sort((a, b) => a.timestamp - b.timestamp);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -272,32 +272,31 @@ export default function OrderQueue({ userId }: { userId: string }) {
       ) : (
         <div className="space-y-3">
           {orders.map((order) => {
-            const isComplete = order.status === "complete";
             const isMine = order.userId === userId;
-            const drink = order.items.find((i) => i.category === "drinks");
+            const drinks = order.items.filter((i) => i.category === "drinks");
             const food = order.items.filter((i) => i.category === "food");
+            const uncategorized = order.items.filter(
+              (i) => i.category !== "drinks" && i.category !== "food"
+            );
 
             return (
-              <div
-                key={order.id}
-                className={`order-card p-4 ${isComplete ? "completed" : ""}`}
-              >
+              <div key={order.id} className="order-card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <div
-                      className={`order-name font-bold text-gray-900 text-base mb-2 ${
-                        isComplete ? "line-through" : ""
-                      }`}
-                    >
+                    <div className="order-name font-bold text-gray-900 text-base mb-2">
                       {order.userName}
                     </div>
 
-                    {drink && (
+                    {drinks.length > 0 && (
                       <div className="mb-1">
                         <div className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">
                           Drink
                         </div>
-                        <ItemLine item={drink} />
+                        <div className="space-y-0.5">
+                          {drinks.map((d) => (
+                            <ItemLine key={d.drinkId} item={d} />
+                          ))}
+                        </div>
                       </div>
                     )}
 
@@ -314,25 +313,35 @@ export default function OrderQueue({ userId }: { userId: string }) {
                       </div>
                     )}
 
+                    {uncategorized.length > 0 && (
+                      <div className="mt-2">
+                        <div className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">
+                          Items
+                        </div>
+                        <div className="space-y-0.5">
+                          {uncategorized.map((u) => (
+                            <ItemLine key={u.drinkId} item={u} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {order.items.length === 0 && (
+                      <div className="text-xs text-gray-400 italic">
+                        (no items on this order)
+                      </div>
+                    )}
+
                     <div className="text-[11px] text-gray-400 mt-2">
                       {new Date(order.timestamp).toLocaleTimeString([], {
                         hour: "numeric",
                         minute: "2-digit",
                       })}
-                      {isComplete && order.completedAt && (
-                        <>
-                          {" · done "}
-                          {new Date(order.completedAt).toLocaleTimeString([], {
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
-                        </>
-                      )}
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-1.5 flex-shrink-0">
-                    {isStaff && !isComplete && (
+                    {isStaff && (
                       <button
                         onClick={() => completeOrder(order.id)}
                         disabled={busy === order.id}
@@ -341,7 +350,7 @@ export default function OrderQueue({ userId }: { userId: string }) {
                         {busy === order.id ? "…" : "Mark done"}
                       </button>
                     )}
-                    {isMine && !isComplete && (
+                    {isMine && (
                       <Link
                         href={`/order?edit=${order.id}`}
                         className="text-xs font-semibold text-[#5a6f8e] hover:text-[#3e5574] px-2 py-1 rounded transition-colors text-center"
