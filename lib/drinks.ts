@@ -74,7 +74,7 @@ export const drinks: Drink[] = [
       { id: "dairy-free", label: "Make dairy-free" },
       { id: "replace-vodka", label: "Replace vodka" },
     ],
-    image: "",
+    image: "/images/espresso.png",
     hasNaOption: false,
     color: "", fontClass: "", glowColor: "", borderColor: "", emoji: "",
   },
