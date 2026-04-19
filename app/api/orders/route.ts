@@ -22,6 +22,26 @@ function parseOrder(raw: Record<string, unknown>): Order | null {
   } catch {
     items = [];
   }
+  // Fallback for legacy single-drink orders stored before the items[] schema.
+  if (items.length === 0 && raw.drinkId) {
+    const legacyDrinkId = raw.drinkId as string;
+    const legacyDrink = getDrinkById(legacyDrinkId);
+    let legacyOptions: string[] = [];
+    try {
+      legacyOptions = JSON.parse((raw.selectedOptions as string) || "[]");
+    } catch {
+      legacyOptions = [];
+    }
+    items = [
+      {
+        drinkId: legacyDrinkId,
+        drinkName:
+          (raw.drinkName as string) || legacyDrink?.name || "Unknown item",
+        category: legacyDrink?.category || "drinks",
+        selectedOptions: legacyOptions,
+      },
+    ];
+  }
   return {
     id: raw.id as string,
     userName: raw.userName as string,

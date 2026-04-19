@@ -25,28 +25,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative z-10">
-      {/* Palm frond SVG overlays */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <svg className="absolute -bottom-8 -left-12 w-[600px] h-[500px] opacity-[0.18]" viewBox="0 0 600 500" fill="none">
-          <path d="M-20 500 C0 460 40 380 100 320 C140 280 200 240 240 220 C280 200 320 200 340 220 C360 240 340 270 300 290 C260 310 200 330 160 370 C120 410 60 470 -20 500Z" fill="#2d5a1e"/>
-          <path d="M-40 480 C-10 430 50 360 120 300 C160 260 220 220 260 210 C300 200 330 210 330 230 C330 250 300 270 260 290 C220 310 160 340 100 390 C40 440 -20 480 -40 480Z" fill="#3a7025"/>
-          <path d="M20 500 C40 470 80 410 140 360 C180 330 230 300 270 290 C310 280 330 290 320 310 C310 330 280 350 240 370 C200 390 140 420 80 460 C40 490 20 500 20 500Z" fill="#2a5520" opacity="0.7"/>
-          <path d="M-20 500 C60 420 160 340 280 260" stroke="#1a4015" strokeWidth="1.5" fill="none" opacity="0.4"/>
-        </svg>
-        <svg className="absolute -bottom-8 -right-12 w-[600px] h-[500px] opacity-[0.18]" viewBox="0 0 600 500" fill="none" style={{ transform: 'scaleX(-1)' }}>
-          <path d="M-20 500 C0 460 40 380 100 320 C140 280 200 240 240 220 C280 200 320 200 340 220 C360 240 340 270 300 290 C260 310 200 330 160 370 C120 410 60 470 -20 500Z" fill="#2d5a1e"/>
-          <path d="M-40 480 C-10 430 50 360 120 300 C160 260 220 220 260 210 C300 200 330 210 330 230 C330 250 300 270 260 290 C220 310 160 340 100 390 C40 440 -20 480 -40 480Z" fill="#3a7025"/>
-          <path d="M20 500 C40 470 80 410 140 360 C180 330 230 300 270 290 C310 280 330 290 320 310 C310 330 280 350 240 370 C200 390 140 420 80 460 C40 490 20 500 20 500Z" fill="#2a5520" opacity="0.7"/>
-        </svg>
-        <svg className="absolute -top-4 -left-8 w-[350px] h-[300px] opacity-[0.08]" viewBox="0 0 350 300" fill="none">
-          <path d="M0 0 C30 30 80 80 120 140 C140 180 150 220 140 250 C130 280 100 270 90 240 C80 210 80 160 60 110 C40 60 10 20 0 0Z" fill="#3a7025"/>
-          <path d="M30 0 C50 30 90 80 120 130 C140 160 150 200 140 230 C130 260 110 250 100 220 C90 190 90 150 70 100 C50 50 30 20 30 0Z" fill="#2d5a1e" opacity="0.6"/>
-        </svg>
-        <svg className="absolute -top-4 -right-8 w-[350px] h-[300px] opacity-[0.08]" viewBox="0 0 350 300" fill="none" style={{ transform: 'scaleX(-1)' }}>
-          <path d="M0 0 C30 30 80 80 120 140 C140 180 150 220 140 250 C130 280 100 270 90 240 C80 210 80 160 60 110 C40 60 10 20 0 0Z" fill="#3a7025"/>
-        </svg>
-      </div>
-
       <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
         <header className="text-center mb-6 pt-4">
           <h1 className="text-7xl md:text-9xl font-[family-name:var(--font-great-vibes)] text-white drop-shadow-[0_2px_15px_rgba(0,0,0,0.25)] leading-tight">
