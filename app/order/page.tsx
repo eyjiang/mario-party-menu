@@ -21,6 +21,8 @@ export default function OrderPage() {
   const [itemState, setItemState] = useState<Record<string, ItemState>>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const existing = document.cookie
@@ -30,6 +32,45 @@ export default function OrderPage() {
       const newId = uuidv4();
       document.cookie = `userId=${newId}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
     }
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("edit");
+    if (!id) return;
+
+    setEditId(id);
+    setLoading(true);
+    fetch(`/api/orders/${id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.order) return;
+        const o = data.order as {
+          userName: string;
+          items: Array<{
+            drinkId: string;
+            selectedOptions?: string[];
+            optionNotes?: Record<string, string>;
+          }>;
+        };
+        setName(o.userName || "");
+        const nextItemState: Record<string, ItemState> = {};
+        const foodIds: string[] = [];
+        let drinkId = "";
+        for (const it of o.items) {
+          nextItemState[it.drinkId] = {
+            selectedOptions: it.selectedOptions || [],
+            optionNotes: it.optionNotes || {},
+          };
+          const d = drinks.find((x) => x.id === it.drinkId);
+          if (!d) continue;
+          if (d.category === "drinks") drinkId = d.id;
+          else foodIds.push(d.id);
+        }
+        setSelectedDrink(drinkId);
+        setSelectedFood(foodIds);
+        setItemState(nextItemState);
+      })
+      .catch(() => setError("Could not load your order."))
+      .finally(() => setLoading(false));
   }, []);
 
   const food = drinks.filter((d) => d.category === "food");
@@ -106,19 +147,21 @@ export default function OrderPage() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
+      const url = editId ? `/api/orders/${editId}` : "/api/orders";
+      const method = editId ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userName: name.trim(), items }),
       });
       if (res.ok) {
-        router.push("/order/thanks");
+        router.push(editId ? "/" : "/order/thanks");
         return;
       }
       const data = await res.json().catch(() => ({}));
-      setError(data.error || "Failed to place order.");
+      setError(data.error || "Failed to save order.");
     } catch {
-      setError("Failed to place order.");
+      setError("Failed to save order.");
     } finally {
       setSubmitting(false);
     }
@@ -169,7 +212,7 @@ export default function OrderPage() {
       <div className="container mx-auto px-4 py-8 max-w-2xl relative z-10">
         <header className="text-center mb-6 pt-2">
           <h1 className="text-5xl md:text-7xl font-[family-name:var(--font-great-vibes)] text-white drop-shadow-[0_2px_15px_rgba(0,0,0,0.25)] leading-tight">
-            Place your order
+            {editId ? "Edit your order" : "Place your order"}
           </h1>
           <Link
             href="/"
@@ -178,6 +221,12 @@ export default function OrderPage() {
             ← back to menu
           </Link>
         </header>
+
+        {loading && (
+          <div className="menu-card p-3 mb-4 text-sm text-gray-500 text-center">
+            Loading your order…
+          </div>
+        )}
 
         <div className="menu-card p-4 mb-5 text-center">
           <p className="text-sm text-gray-700">
@@ -301,10 +350,14 @@ export default function OrderPage() {
 
         <button
           onClick={submit}
-          disabled={submitting}
+          disabled={submitting || loading}
           className="w-full py-4 rounded-2xl bg-[#5a6f8e] hover:bg-[#4d6180] disabled:opacity-50 text-white text-lg font-semibold tracking-wide shadow-lg transition-all"
         >
-          {submitting ? "Sending…" : "Submit order"}
+          {submitting
+            ? "Sending…"
+            : editId
+              ? "Save changes"
+              : "Submit order"}
         </button>
       </div>
     </div>

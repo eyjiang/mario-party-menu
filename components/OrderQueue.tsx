@@ -2,10 +2,20 @@
 
 import { useEffect, useState } from "react";
 import useSWR from "swr";
+import Link from "next/link";
 import { Order, OrderItem } from "@/lib/types";
 import { getDrinkById } from "@/lib/drinks";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+type OrderComment = {
+  id: string;
+  orderId: string;
+  userId: string;
+  userName: string;
+  text: string;
+  timestamp: number;
+};
 
 function optionLabel(drinkId: string, optionId: string): string {
   return (
@@ -31,12 +41,105 @@ function ItemLine({ item }: { item: OrderItem }) {
   );
 }
 
+function Comments({
+  orderId,
+  defaultName,
+  onNameChange,
+}: {
+  orderId: string;
+  defaultName: string;
+  onNameChange: (name: string) => void;
+}) {
+  const { data, mutate } = useSWR<{ comments: OrderComment[] }>(
+    `/api/orders/${orderId}/comments`,
+    fetcher,
+    { refreshInterval: 5000 }
+  );
+  const [text, setText] = useState("");
+  const [name, setName] = useState(defaultName);
+  const [posting, setPosting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setName(defaultName);
+  }, [defaultName]);
+
+  const comments = data?.comments || [];
+
+  const submit = async () => {
+    setError(null);
+    if (!name.trim() || !text.trim()) return;
+    setPosting(true);
+    try {
+      const res = await fetch(`/api/orders/${orderId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userName: name.trim(), text: text.trim() }),
+      });
+      if (res.ok) {
+        setText("");
+        onNameChange(name.trim());
+        mutate();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Failed to post.");
+      }
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  return (
+    <div className="mt-3 pt-3 border-t border-gray-200/70">
+      {comments.length > 0 && (
+        <div className="space-y-1.5 mb-2">
+          {comments.map((c) => (
+            <div key={c.id} className="text-xs text-gray-600 leading-snug">
+              <span className="font-semibold text-gray-800">{c.userName}</span>
+              <span className="text-gray-400"> · </span>
+              <span>{c.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {error && (
+        <div className="text-xs text-red-500 mb-1">{error}</div>
+      )}
+      <div className="flex gap-1.5">
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value.slice(0, 40))}
+          placeholder="name"
+          className="w-20 bg-gray-50 border border-gray-200 rounded-md px-2 py-1 text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#5a6f8e]"
+        />
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value.slice(0, 280))}
+          onKeyDown={(e) => e.key === "Enter" && submit()}
+          placeholder="add a comment…"
+          className="flex-1 bg-gray-50 border border-gray-200 rounded-md px-2 py-1 text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#5a6f8e]"
+        />
+        <button
+          onClick={submit}
+          disabled={posting || !text.trim() || !name.trim()}
+          className="text-xs px-2 py-1 rounded-md bg-[#5a6f8e] hover:bg-[#4d6180] disabled:opacity-40 text-white font-semibold"
+        >
+          {posting ? "…" : "Post"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function OrderQueue({ userId }: { userId: string }) {
   const [staffKey, setStaffKey] = useState("");
   const [isStaff, setIsStaff] = useState(false);
   const [showStaffInput, setShowStaffInput] = useState(false);
   const [staffInput, setStaffInput] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [commenterName, setCommenterName] = useState("");
 
   const { data, mutate } = useSWR<{ orders: Order[] }>("/api/orders", fetcher, {
     refreshInterval: 3000,
@@ -48,7 +151,14 @@ export default function OrderQueue({ userId }: { userId: string }) {
       setStaffKey(saved);
       setIsStaff(true);
     }
+    const savedName = localStorage.getItem("commenterName");
+    if (savedName) setCommenterName(savedName);
   }, []);
+
+  const updateCommenterName = (n: string) => {
+    setCommenterName(n);
+    localStorage.setItem("commenterName", n);
+  };
 
   const enableStaff = () => {
     if (!staffInput.trim()) return;
@@ -231,6 +341,14 @@ export default function OrderQueue({ userId }: { userId: string }) {
                         {busy === order.id ? "…" : "Mark done"}
                       </button>
                     )}
+                    {isMine && !isComplete && (
+                      <Link
+                        href={`/order?edit=${order.id}`}
+                        className="text-xs font-semibold text-[#5a6f8e] hover:text-[#3e5574] px-2 py-1 rounded transition-colors text-center"
+                      >
+                        Edit
+                      </Link>
+                    )}
                     {isMine && (
                       <button
                         onClick={() => removeOrder(order.id)}
@@ -242,6 +360,12 @@ export default function OrderQueue({ userId }: { userId: string }) {
                     )}
                   </div>
                 </div>
+
+                <Comments
+                  orderId={order.id}
+                  defaultName={commenterName}
+                  onNameChange={updateCommenterName}
+                />
               </div>
             );
           })}
